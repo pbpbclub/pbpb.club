@@ -140,7 +140,7 @@ const Materials = () => {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2">База материалов</h1>
+          <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">База материалов</h1>
           <p className="text-muted-foreground">Управление материалами и ценами</p>
         </div>
         <Button data-testid="create-material-btn" onClick={openCreateDialog} className="gap-2">
