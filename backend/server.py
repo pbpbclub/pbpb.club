@@ -49,6 +49,69 @@ class MaterialType(str, Enum):
     paint = "paint"
     other = "other"
 
+class PaymentStage(str, Enum):
+    prepayment = "prepayment"
+    production = "production"
+    delivery = "delivery"
+    completed = "completed"
+
+# Models
+class PaymentInfo(BaseModel):
+    stage: PaymentStage
+    amount: float
+    paid: bool = False
+    paid_date: Optional[str] = None
+    notes: Optional[str] = None
+
+class Client(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: f"client_{int(datetime.now().timestamp()*1000)}")
+    name: str
+    legal_name: Optional[str] = None
+    inn: Optional[str] = None
+    kpp: Optional[str] = None
+    legal_address: Optional[str] = None
+    actual_address: Optional[str] = None
+    bank_name: Optional[str] = None
+    bik: Optional[str] = None
+    account_number: Optional[str] = None
+    contact_person: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    payment_stages: List[PaymentInfo] = []
+    notes: Optional[str] = None
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class ClientCreate(BaseModel):
+    name: str
+    legal_name: Optional[str] = None
+    inn: Optional[str] = None
+    kpp: Optional[str] = None
+    legal_address: Optional[str] = None
+    actual_address: Optional[str] = None
+    bank_name: Optional[str] = None
+    bik: Optional[str] = None
+    account_number: Optional[str] = None
+    contact_person: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    notes: Optional[str] = None
+
+class ClientUpdate(BaseModel):
+    name: Optional[str] = None
+    legal_name: Optional[str] = None
+    inn: Optional[str] = None
+    kpp: Optional[str] = None
+    legal_address: Optional[str] = None
+    actual_address: Optional[str] = None
+    bank_name: Optional[str] = None
+    bik: Optional[str] = None
+    account_number: Optional[str] = None
+    contact_person: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    notes: Optional[str] = None
+
 # Models
 class Material(BaseModel):
     id: str = Field(default_factory=lambda: f"mat_{int(datetime.now().timestamp()*1000)}")
