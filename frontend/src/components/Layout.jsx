@@ -40,7 +40,7 @@ const Layout = ({ children }) => {
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium transition-all duration-200',
                   isActive
-                    ? 'bg-[#E26A2D] text-white shadow-md'
+                    ? 'bg-[#384E84] text-white shadow-md'
                     : 'text-gray-200 hover:text-white hover:bg-gray-700'
                 )}
               >
