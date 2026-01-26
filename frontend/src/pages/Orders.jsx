@@ -110,7 +110,7 @@ const Orders = () => {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Заказы</h1>
+          <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">Заказы</h1>
           <p className="text-muted-foreground">Управление заказами и производством</p>
         </div>
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
