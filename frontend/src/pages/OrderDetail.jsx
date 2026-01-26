@@ -172,7 +172,7 @@ const OrderDetail = () => {
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold">Этапы производства</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Этапы производства</h2>
         <Dialog open={openStageDialog} onOpenChange={setOpenStageDialog}>
           <DialogTrigger asChild>
             <Button data-testid="add-stage-btn" className="gap-2">
