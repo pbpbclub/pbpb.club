@@ -95,7 +95,7 @@ const Calendar = () => {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight mb-2">Производственный календарь</h1>
+        <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">Производственный календарь</h1>
         <p className="text-muted-foreground">Планирование этапов и контроль загрузки</p>
       </div>
 
