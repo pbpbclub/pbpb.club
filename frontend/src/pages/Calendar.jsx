@@ -189,7 +189,7 @@ const Calendar = () => {
         )}
       </Card>
 
-      <Card className="mt-6 p-6">
+      <Card className="mt-6 p-6 border-gray-300 shadow-sm">
         <h3 className="text-lg font-semibold mb-4">Легенда этапов</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {Object.entries(stageTypeLabels).map(([key, label]) => (
