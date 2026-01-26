@@ -159,7 +159,7 @@ const Calendar = () => {
                 >
                   <div
                     className={`text-sm font-semibold mb-2 ${
-                      isToday ? 'text-emerald-700' : 'text-muted-foreground'
+                      isToday ? 'text-[#E26A2D]' : 'text-muted-foreground'
                     }`}
                   >
                     {date}
