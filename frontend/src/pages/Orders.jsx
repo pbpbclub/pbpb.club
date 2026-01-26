@@ -123,6 +123,9 @@ const Orders = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Новый заказ</DialogTitle>
+              <DialogDescription>
+                Создайте новый заказ, указав основную информацию
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
