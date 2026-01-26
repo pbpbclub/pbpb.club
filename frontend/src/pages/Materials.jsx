@@ -141,7 +141,7 @@ const Materials = () => {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">База материалов</h1>
-          <p className="text-muted-foreground">Управление материалами и ценами</p>
+          <p className="text-gray-600">Управление материалами и ценами</p>
         </div>
         <Button data-testid="create-material-btn" onClick={openCreateDialog} className="gap-2">
           <Plus className="w-4 h-4" />
@@ -152,7 +152,7 @@ const Materials = () => {
       <Card className="mb-6 border-gray-300 shadow-sm">
         <div className="p-4 flex items-center gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600" />
             <Input
               data-testid="search-materials-input"
               placeholder="Поиск материалов..."
@@ -195,7 +195,7 @@ const Materials = () => {
             <TableBody>
               {filteredMaterials.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-12 text-gray-600">
                     Материалов не найдено
                   </TableCell>
                 </TableRow>
@@ -212,7 +212,7 @@ const Materials = () => {
                       {formatCurrency(material.price)}
                     </TableCell>
                     <TableCell>{material.unit}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="text-sm text-gray-600">
                       {material.notes || '—'}
                     </TableCell>
                     <TableCell className="text-right">

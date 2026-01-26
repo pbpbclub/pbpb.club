@@ -141,13 +141,13 @@ const OrderDetail = () => {
 
       <div className="mb-6">
         <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">{order.name}</h1>
-        <p className="text-muted-foreground">Клиент: {order.client}</p>
+        <p className="text-gray-600">Клиент: {order.client}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <Card className="border-gray-300 shadow-sm">
           <CardContent className="p-6">
-            <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+            <div className="text-xs text-gray-600 uppercase tracking-wider mb-2">
               Себестоимость
             </div>
             <div className="text-2xl font-bold font-mono text-gray-900">{formatCurrency(order.actual_cost)}</div>
@@ -155,7 +155,7 @@ const OrderDetail = () => {
         </Card>
         <Card className="border-gray-300 shadow-sm">
           <CardContent className="p-6">
-            <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+            <div className="text-xs text-gray-600 uppercase tracking-wider mb-2">
               Цена наличными
             </div>
             <div className="text-2xl font-bold font-mono text-[#384E84]">{formatCurrency(order.cash_price)}</div>
@@ -163,7 +163,7 @@ const OrderDetail = () => {
         </Card>
         <Card className="border-gray-300 shadow-sm">
           <CardContent className="p-6">
-            <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+            <div className="text-xs text-gray-600 uppercase tracking-wider mb-2">
               Цена безналичными
             </div>
             <div className="text-2xl font-bold font-mono text-[#7A7A79]">{formatCurrency(order.cashless_price)}</div>
@@ -238,7 +238,7 @@ const OrderDetail = () => {
       <div className="space-y-4">
         {order.stages.length === 0 ? (
           <Card className="border-gray-300 shadow-sm">
-            <CardContent className="p-12 text-center text-muted-foreground">
+            <CardContent className="p-12 text-center text-gray-600">
               Этапов пока нет
             </CardContent>
           </Card>
@@ -317,7 +317,7 @@ const OrderDetail = () => {
                   </div>
                 </div>
                 {stage.master && (
-                  <p className="text-sm text-muted-foreground">Мастер: {stage.master}</p>
+                  <p className="text-sm text-gray-600">Мастер: {stage.master}</p>
                 )}
               </CardHeader>
               <CardContent>
@@ -357,7 +357,7 @@ const OrderDetail = () => {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
+                  <p className="text-sm text-gray-600 text-center py-4">
                     Затраты пока не добавлены
                   </p>
                 )}

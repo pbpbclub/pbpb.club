@@ -111,7 +111,7 @@ const Orders = () => {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">Заказы</h1>
-          <p className="text-muted-foreground">Управление заказами и производством</p>
+          <p className="text-gray-600">Управление заказами и производством</p>
         </div>
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild>
@@ -182,7 +182,7 @@ const Orders = () => {
       <Card className="mb-6 border-gray-300 shadow-sm">
         <div className="p-4 flex items-center gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600" />
             <Input
               data-testid="search-orders-input"
               placeholder="Поиск по названию или клиенту..."
@@ -226,7 +226,7 @@ const Orders = () => {
             <TableBody>
               {filteredOrders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-12 text-gray-600">
                     Заказов не найдено
                   </TableCell>
                 </TableRow>
@@ -245,10 +245,10 @@ const Orders = () => {
                         {statusLabels[order.status]}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="text-sm text-gray-600">
                       {formatDate(order.order_date)}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="text-sm text-gray-600">
                       {formatDate(order.planned_completion_date)}
                     </TableCell>
                     <TableCell className="font-mono text-sm">

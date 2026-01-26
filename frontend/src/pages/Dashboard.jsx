@@ -18,7 +18,7 @@ const StatCard = ({ title, value, icon: Icon, trend, color = 'gray' }) => {
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+            <p className="text-xs text-gray-600 uppercase tracking-wider mb-2">
               {title}
             </p>
             <h3 className="text-3xl font-bold font-mono">{value}</h3>
@@ -74,7 +74,7 @@ const Dashboard = () => {
     <div className="p-8">
       <div className="mb-8">
         <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">Панель управления</h1>
-        <p className="text-muted-foreground">Обзор производства и заказов</p>
+        <p className="text-gray-600">Обзор производства и заказов</p>
       </div>
 
       {loading ? (
@@ -116,24 +116,24 @@ const Dashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-600">
               Добро пожаловать в систему управления производством Factory Hub.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 border-2 border-gray-300 rounded hover:bg-gray-100 hover:border-[#384E84] hover:shadow-md transition-all cursor-pointer">
                 <Package className="w-8 h-8 mb-2 text-[#384E84]" />
                 <h3 className="font-semibold mb-1">Создать заказ</h3>
-                <p className="text-sm text-muted-foreground">Добавьте новый заказ в систему</p>
+                <p className="text-sm text-gray-600">Добавьте новый заказ в систему</p>
               </div>
               <div className="p-4 border-2 border-gray-300 rounded hover:bg-gray-100 hover:border-[#384E84] hover:shadow-md transition-all cursor-pointer">
                 <Database className="w-8 h-8 mb-2 text-[#384E84]" />
                 <h3 className="font-semibold mb-1">Материалы</h3>
-                <p className="text-sm text-muted-foreground">Управление базой материалов</p>
+                <p className="text-sm text-gray-600">Управление базой материалов</p>
               </div>
               <div className="p-4 border-2 border-gray-300 rounded hover:bg-gray-100 hover:border-[#384E84] hover:shadow-md transition-all cursor-pointer">
                 <Calendar className="w-8 h-8 mb-2 text-[#384E84]" />
                 <h3 className="font-semibold mb-1">Календарь</h3>
-                <p className="text-sm text-muted-foreground">Планирование производства</p>
+                <p className="text-sm text-gray-600">Планирование производства</p>
               </div>
             </div>
           </div>

@@ -96,7 +96,7 @@ const Calendar = () => {
     <div className="p-8">
       <div className="mb-8">
         <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">Производственный календарь</h1>
-        <p className="text-muted-foreground">Планирование этапов и контроль загрузки</p>
+        <p className="text-gray-600">Планирование этапов и контроль загрузки</p>
       </div>
 
       <Card className="p-6 border-gray-300 shadow-sm">
@@ -131,7 +131,7 @@ const Calendar = () => {
             {weekDays.map((day, index) => (
               <div
                 key={index}
-                className="text-center text-sm font-semibold text-muted-foreground py-2"
+                className="text-center text-sm font-semibold text-gray-600 py-2"
               >
                 {day}
               </div>
@@ -159,7 +159,7 @@ const Calendar = () => {
                 >
                   <div
                     className={`text-sm font-semibold mb-2 ${
-                      isToday ? 'text-[#384E84]' : 'text-muted-foreground'
+                      isToday ? 'text-[#384E84]' : 'text-gray-600'
                     }`}
                   >
                     {date}
@@ -177,7 +177,7 @@ const Calendar = () => {
                       </div>
                     ))}
                     {dayEvents.length > 3 && (
-                      <div className="text-xs text-muted-foreground text-center">
+                      <div className="text-xs text-gray-600 text-center">
                         +{dayEvents.length - 3} ещё
                       </div>
                     )}
