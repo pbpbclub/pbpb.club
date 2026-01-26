@@ -53,7 +53,7 @@ const Layout = ({ children }) => {
 
         <div className="p-4 border-t border-gray-600">
           <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-8 h-8 rounded-full bg-[#E26A2D] flex items-center justify-center text-xs font-bold">
+            <div className="w-8 h-8 rounded-full bg-[#384E84] flex items-center justify-center text-xs font-bold">
               ВП
             </div>
             <div className="flex-1 min-w-0">
