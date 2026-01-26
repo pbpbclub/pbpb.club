@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Plus, Search, Filter, Trash2 } from 'lucide-react';
+import { Plus, Search, Filter, Trash2, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -58,6 +58,15 @@ const Orders = () => {
     planned_completion_date: '',
     notes: '',
   });
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    client: '',
+    planned_completion_date: '',
+    notes: '',
+    status: 'draft',
+  });
 
   useEffect(() => {
     fetchOrders();
@@ -99,6 +108,39 @@ const Orders = () => {
       currency: 'RUB',
       minimumFractionDigits: 0,
     }).format(value);
+  };
+
+  const openEditDialog = (order) => {
+    setEditingOrder(order);
+    setEditForm({
+      name: order.name,
+      client: order.client,
+      planned_completion_date: order.planned_completion_date || '',
+      notes: order.notes || '',
+      status: order.status,
+    });
+    setEditDialogOpen(true);
+  };
+
+  const updateOrder = async () => {
+    try {
+      await axios.put(`${API}/orders/${editingOrder.id}`, editForm);
+      setEditDialogOpen(false);
+      setEditingOrder(null);
+      fetchOrders();
+    } catch (error) {
+      console.error('Error updating order:', error);
+    }
+  };
+
+  const deleteOrder = async (id) => {
+    if (!window.confirm('Удалить заказ?')) return;
+    try {
+      await axios.delete(`${API}/orders/${id}`);
+      fetchOrders();
+    } catch (error) {
+      console.error('Error deleting order:', error);
+    }
   };
 
   const filteredOrders = orders.filter(order =>
@@ -214,7 +256,7 @@ const Orders = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="font-semibold w-12"></TableHead>
+                <TableHead className="font-semibold w-20"></TableHead>
                 <TableHead className="font-semibold">Название</TableHead>
                 <TableHead className="font-semibold">Клиент</TableHead>
                 <TableHead className="font-semibold">Статус</TableHead>
@@ -238,20 +280,31 @@ const Orders = () => {
                     data-testid={`order-row-${order.id}`}
                     className="cursor-pointer"
                   >
-                    <TableCell className="w-12">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (window.confirm('Удалить заказ?')) {
-                            axios.delete(`${API}/orders/${order.id}`).then(fetchOrders);
-                          }
-                        }}
-                        data-testid={`delete-order-${order.id}`}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
+                    <TableCell className="w-20">
+                      <div className="flex items-center gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEditDialog(order);
+                          }}
+                          data-testid={`edit-order-${order.id}`}
+                        >
+                          <Pencil className="w-4 h-4 text-gray-600" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteOrder(order.id);
+                          }}
+                          data-testid={`delete-order-${order.id}`}
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium" onClick={() => navigate(`/orders/${order.id}`)}>{order.name}</TableCell>
                     <TableCell onClick={() => navigate(`/orders/${order.id}`)}>{order.client}</TableCell>
