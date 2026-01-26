@@ -471,6 +471,47 @@ async def get_client_orders(client_id: str):
     orders = await db.orders.find({"client": client_name}, {"_id": 0}).sort("created_at", -1).to_list(1000)
     return orders
 
+# Masters endpoints
+@api_router.post("/masters", response_model=Master)
+async def create_master(master_data: MasterCreate):
+    master_obj = Master(**master_data.model_dump())
+    await db.masters.insert_one(master_obj.model_dump())
+    return master_obj
+
+@api_router.get("/masters", response_model=List[Master])
+async def get_masters(specialization: Optional[Specialization] = None):
+    query = {}
+    if specialization:
+        query["specialization"] = specialization
+    masters = await db.masters.find(query, {"_id": 0}).sort("name", 1).to_list(1000)
+    return masters
+
+@api_router.get("/masters/{master_id}", response_model=Master)
+async def get_master(master_id: str):
+    master = await db.masters.find_one({"id": master_id}, {"_id": 0})
+    if not master:
+        raise HTTPException(status_code=404, detail="Master not found")
+    return master
+
+@api_router.put("/masters/{master_id}", response_model=Master)
+async def update_master(master_id: str, master_update: MasterUpdate):
+    master = await db.masters.find_one({"id": master_id}, {"_id": 0})
+    if not master:
+        raise HTTPException(status_code=404, detail="Master not found")
+    
+    update_data = {k: v for k, v in master_update.model_dump().items() if v is not None}
+    if update_data:
+        await db.masters.update_one({"id": master_id}, {"$set": update_data})
+        master.update(update_data)
+    return master
+
+@api_router.delete("/masters/{master_id}")
+async def delete_master(master_id: str):
+    result = await db.masters.delete_one({"id": master_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Master not found")
+    return {"message": "Master deleted"}
+
 app.include_router(api_router)
 
 app.add_middleware(
