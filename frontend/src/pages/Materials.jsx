@@ -249,6 +249,9 @@ const Materials = () => {
             <DialogTitle>
               {editingMaterial ? 'Редактировать материал' : 'Новый материал'}
             </DialogTitle>
+            <DialogDescription>
+              {editingMaterial ? 'Измените информацию о материале' : 'Добавьте новый материал в базу данных'}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
