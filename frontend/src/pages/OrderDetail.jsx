@@ -183,6 +183,9 @@ const OrderDetail = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Новый этап</DialogTitle>
+              <DialogDescription>
+                Добавьте этап производства для этого заказа
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
