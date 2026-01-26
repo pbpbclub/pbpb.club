@@ -232,39 +232,25 @@ const Clients = () => {
                     key={client.id}
                     data-testid={`client-row-${client.id}`}
                     className="cursor-pointer"
-                    onClick={() => navigate(`/clients/${client.id}`)}
                   >
-                    <TableCell className="font-medium">{client.name}</TableCell>
-                    <TableCell>{client.inn || '—'}</TableCell>
-                    <TableCell>{client.contact_person || '—'}</TableCell>
-                    <TableCell>{client.phone || '—'}</TableCell>
-                    <TableCell>{client.email || '—'}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/clients/${client.id}`);
-                          }}
-                          data-testid={`edit-client-${client.id}`}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteClient(client.id);
-                          }}
-                          data-testid={`delete-client-${client.id}`}
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
+                    <TableCell className="w-12">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteClient(client.id);
+                        }}
+                        data-testid={`delete-client-${client.id}`}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
                     </TableCell>
+                    <TableCell className="font-medium" onClick={() => navigate(`/clients/${client.id}`)}>{client.name}</TableCell>
+                    <TableCell onClick={() => navigate(`/clients/${client.id}`)}>{client.inn || '—'}</TableCell>
+                    <TableCell onClick={() => navigate(`/clients/${client.id}`)}>{client.contact_person || '—'}</TableCell>
+                    <TableCell onClick={() => navigate(`/clients/${client.id}`)}>{client.phone || '—'}</TableCell>
+                    <TableCell onClick={() => navigate(`/clients/${client.id}`)}>{client.email || '—'}</TableCell>
                   </TableRow>
                 ))
               )}
