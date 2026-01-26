@@ -1,0 +1,141 @@
+{
+  "design_system": {
+    "name": "FurnitureOS - Industrial Utility",
+    "description": "A minimalist, utilitarian design system for furniture production management. Combines the precision of architectural blueprints with the tactile warmth of a craftsman's workshop.",
+    "theme_strategy": "light",
+    "emotional_tone": "Precise, Reliable, Efficient, Tactile",
+    "typography": {
+      "font_family": {
+        "headings": "Manrope, sans-serif",
+        "body": "Public Sans, sans-serif",
+        "mono": "JetBrains Mono, monospace"
+      },
+      "weights": {
+        "light": 300,
+        "regular": 400,
+        "medium": 500,
+        "bold": 700,
+        "black": 900
+      },
+      "scale": {
+        "h1": "text-4xl font-bold tracking-tight",
+        "h2": "text-3xl font-bold tracking-tight",
+        "h3": "text-2xl font-semibold tracking-tight",
+        "h4": "text-xl font-semibold tracking-tight",
+        "body_lg": "text-lg leading-relaxed",
+        "body_base": "text-base leading-relaxed",
+        "body_sm": "text-sm leading-relaxed",
+        "caption": "text-xs text-muted-foreground uppercase tracking-wider"
+      },
+      "instructions": "Import fonts from Google Fonts in index.css. Use Manrope for all headings to give a modern, geometric feel. Use Public Sans for body text for high legibility in dense tables. Use JetBrains Mono for ALL financial data, dimensions, and IDs."
+    },
+    "colors": {
+      "palette": {
+        "background": "#F8F9FA",
+        "foreground": "#0F172A",
+        "sidebar": "#111827",
+        "sidebar_foreground": "#F9FAFB",
+        "primary": "#0F172A",
+        "primary_foreground": "#FFFFFF",
+        "secondary": "#F1F5F9",
+        "secondary_foreground": "#0F172A",
+        "muted": "#F1F5F9",
+        "muted_foreground": "#64748B",
+        "accent": "#F1F5F9",
+        "accent_foreground": "#0F172A",
+        "border": "#E2E8F0",
+        "input": "#E2E8F0",
+        "ring": "#0F172A",
+        "success": "#10B981",
+        "warning": "#F59E0B",
+        "destructive": "#EF4444",
+        "info": "#3B82F6"
+      },
+      "usage": {
+        "sidebar": "bg-[#111827] text-white",
+        "canvas": "bg-[#F8F9FA]",
+        "card": "bg-white border border-gray-200 shadow-sm",
+        "status_success": "bg-emerald-100 text-emerald-700 border-emerald-200",
+        "status_warning": "bg-amber-100 text-amber-700 border-amber-200",
+        "status_error": "bg-red-100 text-red-700 border-red-200",
+        "status_neutral": "bg-slate-100 text-slate-700 border-slate-200"
+      }
+    },
+    "layout": {
+      "spacing_scale": "px-4 py-2 (compact), p-6 (standard), p-8 (generous)",
+      "container": "max-w-[1600px] mx-auto",
+      "grid_system": "Grid Mode B (High Density). Use grid-cols-12 for dashboards. Sidebar is fixed width (250px).",
+      "radius": "rounded-sm"
+    },
+    "components": {
+      "buttons": {
+        "default": "h-9 px-4 py-2 rounded-sm font-medium transition-all active:scale-95",
+        "primary": "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+        "secondary": "bg-white border border-input hover:bg-accent hover:text-accent-foreground shadow-sm",
+        "ghost": "hover:bg-accent hover:text-accent-foreground",
+        "destructive": "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm"
+      },
+      "cards": {
+        "style": "bg-white rounded-sm border border-border shadow-sm hover:shadow-md transition-shadow duration-200",
+        "header": "p-6 pb-3 border-b border-border/50",
+        "content": "p-6 pt-3"
+      },
+      "inputs": {
+        "style": "h-9 rounded-sm border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+      },
+      "tables": {
+        "style": "w-full caption-bottom text-sm",
+        "header": "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
+        "row": "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
+        "cell": "p-4 align-middle [&:has([role=checkbox])]:pr-0"
+      },
+      "badges": {
+        "style": "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      }
+    },
+    "visual_enhancers": {
+      "shadows": "shadow-sm (default), shadow-md (hover), shadow-none (flat)",
+      "borders": "1px solid #E2E8F0",
+      "glassmorphism": "backdrop-blur-md bg-white/80 border-white/20 (Use sparingly for sticky headers)",
+      "textures": "Subtle noise texture on the sidebar background to give it a 'cast iron' feel."
+    },
+    "motion": {
+      "duration": "duration-200",
+      "ease": "ease-out",
+      "hover": "hover:-translate-y-0.5 transition-transform",
+      "instructions": "Use micro-interactions for all clickable elements. Lists should stagger in."
+    },
+    "accessibility": {
+      "contrast": "Ensure text is at least 4.5:1 against background. Use APCA standards.",
+      "focus": "Visible focus rings on all interactive elements.",
+      "aria": "Use aria-labels for icon-only buttons."
+    },
+    "assets": {
+      "icons": "Lucide React (Stroke width 1.5px for elegance)",
+      "images": {
+        "login_bg": "https://images.pexels.com/photos/7480726/pexels-photo-7480726.jpeg",
+        "empty_state": "https://images.pexels.com/photos/5095283/pexels-photo-5095283.jpeg",
+        "material_steel": "https://images.unsplash.com/photo-1645223584144-fcff071bae63?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDZ8MHwxfHNlYXJjaHwzfHxpbmR1c3RyaWFsJTIwc3RlZWwlMjBwaXBlJTIwd29vZCUyMHRleHR1cmV8ZW58MHx8fHwxNzY5NDM1NTk1fDA&ixlib=rb-4.1.0&q=85",
+        "material_wood": "https://images.unsplash.com/photo-1621444349322-a11b0e015911?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDZ8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwc3RlZWwlMjBwaXBlJTIwd29vZCUyMHRleHR1cmV8ZW58MHx8fHwxNzY5NDM1NTk1fDA&ixlib=rb-4.1.0&q=85",
+        "material_fabric": "https://images.unsplash.com/photo-1758546407134-42b017d5f011?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzN8MHwxfHNlYXJjaHwxfHxmYWJyaWMlMjBzd2F0Y2glMjB0ZXh0dXJlfGVufDB8fHx8MTc2OTQzNTU5N3ww&ixlib=rb-4.1.0&q=85"
+      }
+    },
+    "instructions_to_main_agent": [
+      "1. SETUP: Install 'lucide-react', 'recharts', 'date-fns', 'react-day-picker', 'framer-motion', 'clsx', 'tailwind-merge'.",
+      "2. FONTS: Add Manrope, Public Sans, and JetBrains Mono to index.css via @import.",
+      "3. LAYOUT: Create a Layout component with a fixed dark sidebar and a scrollable light main area.",
+      "4. COMPONENTS: Use the provided Shadcn components in /src/components/ui. Customize them to match the 'rounded-sm' and 'border-gray-200' aesthetic.",
+      "5. PAGES: Implement 'Orders List', 'Order Detail', 'Production Calendar', and 'Materials Database'.",
+      "6. COST CALCULATOR: Use a grid layout for the calculator. Use JetBrains Mono for all input fields involving numbers.",
+      "7. CALENDAR: Use a library like 'react-big-calendar' or build a custom grid using CSS Grid for the Gantt chart. Ensure drag-and-drop feels solid.",
+      "8. TESTING: Add data-testid to all interactive elements (buttons, inputs, rows)."
+    ],
+    "universal_guidelines": [
+      "Do not use gradients for backgrounds, use solid colors or subtle textures.",
+      "Avoid 'AI slop' - no generic centered layouts.",
+      "Use 2-3x more spacing than typical designs.",
+      "Every interaction needs micro-animations.",
+      "Use Sonner for toasts."
+    ]
+  }
+}
