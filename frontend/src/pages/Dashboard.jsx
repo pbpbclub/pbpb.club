@@ -88,25 +88,25 @@ const Dashboard = () => {
             title="Всего заказов"
             value={stats.total_orders}
             icon={Package}
-            color="slate"
+            color="gray"
           />
           <StatCard
             title="В работе"
             value={stats.active_orders}
             icon={Clock}
-            color="amber"
+            color="orange"
           />
           <StatCard
             title="Выполнено"
             value={stats.completed_orders}
             icon={CheckCircle}
-            color="emerald"
+            color="blue"
           />
           <StatCard
             title="Выручка"
             value={formatCurrency(stats.total_revenue)}
             icon={TrendingUp}
-            color="blue"
+            color="black"
           />
         </div>
       )}
