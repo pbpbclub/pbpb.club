@@ -6,16 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const StatCard = ({ title, value, icon: Icon, trend, color = 'emerald' }) => {
+const StatCard = ({ title, value, icon: Icon, trend, color = 'orange' }) => {
   const colorClasses = {
-    emerald: 'from-emerald-500 to-teal-600',
-    blue: 'from-blue-500 to-cyan-600',
-    amber: 'from-amber-500 to-orange-600',
-    slate: 'from-slate-500 to-gray-600',
+    orange: 'from-[#E26A2D] to-[#D85A1D]',
+    blue: 'from-[#384E84] to-[#2A3B64]',
+    gray: 'from-[#7A7A79] to-[#5A5A59]',
+    black: 'from-[#212121] to-[#111111]',
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow duration-200">
+    <Card className="hover:shadow-lg transition-shadow duration-200 border-gray-300">
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -24,13 +24,13 @@ const StatCard = ({ title, value, icon: Icon, trend, color = 'emerald' }) => {
             </p>
             <h3 className="text-3xl font-bold font-mono">{value}</h3>
             {trend && (
-              <p className="text-sm text-emerald-600 mt-2 flex items-center gap-1">
+              <p className="text-sm text-[#E26A2D] mt-2 flex items-center gap-1">
                 <TrendingUp className="w-4 h-4" />
                 {trend}
               </p>
             )}
           </div>
-          <div className={`w-12 h-12 rounded-sm bg-gradient-to-br ${colorClasses[color]} flex items-center justify-center`}>
+          <div className={`w-12 h-12 rounded bg-gradient-to-br ${colorClasses[color]} flex items-center justify-center`}>
             <Icon className="w-6 h-6 text-white" strokeWidth={1.5} />
           </div>
         </div>
