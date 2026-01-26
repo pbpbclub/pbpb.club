@@ -101,7 +101,7 @@ const Calendar = () => {
 
       <Card className="p-6 border-gray-300 shadow-sm">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold capitalize">{monthName}</h2>
+          <h2 className="text-2xl font-bold capitalize text-gray-900">{monthName}</h2>
           <div className="flex gap-2">
             <Button
               variant="outline"
