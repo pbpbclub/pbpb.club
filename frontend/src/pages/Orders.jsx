@@ -332,6 +332,77 @@ const Orders = () => {
           </Table>
         )}
       </Card>
+
+      {/* Edit Order Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Редактировать заказ</DialogTitle>
+            <DialogDescription>
+              Измените информацию о заказе
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="edit-name">Название изделия</Label>
+              <Input
+                id="edit-name"
+                data-testid="edit-order-name-input"
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-client">Клиент</Label>
+              <Input
+                id="edit-client"
+                data-testid="edit-order-client-input"
+                value={editForm.client}
+                onChange={(e) => setEditForm({ ...editForm, client: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-status">Статус</Label>
+              <select
+                id="edit-status"
+                data-testid="edit-order-status-select"
+                value={editForm.status}
+                onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                className="w-full h-9 rounded border-2 border-gray-300 bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#384E84] focus:ring-opacity-20 focus:border-[#384E84]"
+              >
+                {Object.keys(statusLabels).map(status => (
+                  <option key={status} value={status}>{statusLabels[status]}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="edit-completion_date">Плановая дата завершения</Label>
+              <Input
+                id="edit-completion_date"
+                type="date"
+                value={editForm.planned_completion_date}
+                onChange={(e) => setEditForm({ ...editForm, planned_completion_date: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-notes">Примечания</Label>
+              <Input
+                id="edit-notes"
+                value={editForm.notes}
+                onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+              />
+            </div>
+            <Button
+              data-testid="save-order-btn"
+              onClick={updateOrder}
+              className="w-full"
+              disabled={!editForm.name || !editForm.client}
+            >
+              Сохранить
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
