@@ -148,10 +148,43 @@ const Orders = () => {
     }
   };
 
-  const filteredOrders = orders.filter(order =>
-    order.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    order.client.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredOrders = orders.filter(order => {
+    // Text search filter
+    const matchesSearch = searchQuery === '' || 
+      order.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.client.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Status filter
+    const matchesStatus = statusFilter === '' || order.status === statusFilter;
+    
+    // Client filter
+    const matchesClient = clientFilter === '' || 
+      order.client.toLowerCase().includes(clientFilter.toLowerCase());
+    
+    // Date range filter
+    let matchesDate = true;
+    if (dateFromFilter || dateToFilter) {
+      const orderDate = new Date(order.order_date);
+      if (dateFromFilter) {
+        matchesDate = matchesDate && orderDate >= new Date(dateFromFilter);
+      }
+      if (dateToFilter) {
+        matchesDate = matchesDate && orderDate <= new Date(dateToFilter);
+      }
+    }
+    
+    return matchesSearch && matchesStatus && matchesClient && matchesDate;
+  });
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('');
+    setClientFilter('');
+    setDateFromFilter('');
+    setDateToFilter('');
+  };
+
+  const uniqueClients = [...new Set(orders.map(o => o.client))].sort();
 
   return (
     <div className="p-8">
