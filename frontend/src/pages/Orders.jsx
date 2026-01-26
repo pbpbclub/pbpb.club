@@ -214,6 +214,7 @@ const Orders = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="font-semibold w-12"></TableHead>
                 <TableHead className="font-semibold">Название</TableHead>
                 <TableHead className="font-semibold">Клиент</TableHead>
                 <TableHead className="font-semibold">Статус</TableHead>
