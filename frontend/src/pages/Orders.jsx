@@ -51,6 +51,10 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [clientFilter, setClientFilter] = useState('');
+  const [dateFromFilter, setDateFromFilter] = useState('');
+  const [dateToFilter, setDateToFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [newOrder, setNewOrder] = useState({
     name: '',
@@ -67,6 +71,7 @@ const Orders = () => {
     notes: '',
     status: 'draft',
   });
+
 
   useEffect(() => {
     fetchOrders();
