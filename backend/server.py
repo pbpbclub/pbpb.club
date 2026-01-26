@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,67 +6,321 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
-import uuid
+from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone
-
+from enum import Enum
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
 app = FastAPI()
-
-# Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Enums
+class OrderStatus(str, Enum):
+    draft = "draft"
+    project = "project"
+    estimation = "estimation"
+    production = "production"
+    completed = "completed"
+    cancelled = "cancelled"
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
+class StageType(str, Enum):
+    project = "project"
+    estimation = "estimation"
+    welding = "welding"
+    painting = "painting"
+    woodwork = "woodwork"
+    upholstery = "upholstery"
+
+class StageStatus(str, Enum):
+    not_started = "not_started"
+    in_progress = "in_progress"
+    completed = "completed"
+
+class MaterialType(str, Enum):
+    metal = "metal"
+    wood = "wood"
+    fabric = "fabric"
+    paint = "paint"
+    other = "other"
+
+# Models
+class Material(BaseModel):
+    id: str = Field(default_factory=lambda: f"mat_{int(datetime.now().timestamp()*1000)}")
+    name: str
+    type: MaterialType
+    price: float
+    unit: str  # шт, м, кг, м2
+    notes: Optional[str] = None
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class MaterialCreate(BaseModel):
+    name: str
+    type: MaterialType
+    price: float
+    unit: str
+    notes: Optional[str] = None
+
+class CostItem(BaseModel):
+    id: str = Field(default_factory=lambda: f"cost_{int(datetime.now().timestamp()*1000)}")
+    name: str  # Название позиции (например, "Труба 25x25")
+    quantity: float
+    unit: str
+    price_per_unit: float
+    total: float
+
+class CostItemCreate(BaseModel):
+    name: str
+    quantity: float
+    unit: str
+    price_per_unit: float
+
+class Stage(BaseModel):
+    id: str = Field(default_factory=lambda: f"stage_{int(datetime.now().timestamp()*1000)}")
+    type: StageType
+    status: StageStatus = StageStatus.not_started
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+    master: Optional[str] = None
+    notes: Optional[str] = None
+    cost_items: List[CostItem] = []
+    total_cost: float = 0.0
+
+class StageCreate(BaseModel):
+    type: StageType
+    status: Optional[StageStatus] = StageStatus.not_started
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+    master: Optional[str] = None
+    notes: Optional[str] = None
+
+class Order(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: f"ord_{int(datetime.now().timestamp()*1000)}")
+    name: str
+    client: str
+    status: OrderStatus = OrderStatus.draft
+    order_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    planned_completion_date: Optional[str] = None
+    actual_completion_date: Optional[str] = None
+    stages: List[Stage] = []
+    planned_cost: float = 0.0
+    actual_cost: float = 0.0
+    sale_price: float = 0.0
+    cash_price: float = 0.0
+    cashless_price: float = 0.0
+    notes: Optional[str] = None
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class OrderCreate(BaseModel):
+    name: str
+    client: str
+    planned_completion_date: Optional[str] = None
+    notes: Optional[str] = None
+
+class OrderUpdate(BaseModel):
+    name: Optional[str] = None
+    client: Optional[str] = None
+    status: Optional[OrderStatus] = None
+    planned_completion_date: Optional[str] = None
+    actual_completion_date: Optional[str] = None
+    notes: Optional[str] = None
+
+# Materials endpoints
+@api_router.post("/materials", response_model=Material)
+async def create_material(material: MaterialCreate):
+    material_obj = Material(**material.model_dump())
+    await db.materials.insert_one(material_obj.model_dump())
+    return material_obj
+
+@api_router.get("/materials", response_model=List[Material])
+async def get_materials(type: Optional[MaterialType] = None):
+    query = {}
+    if type:
+        query["type"] = type
+    materials = await db.materials.find(query, {"_id": 0}).to_list(1000)
+    return materials
+
+@api_router.put("/materials/{material_id}", response_model=Material)
+async def update_material(material_id: str, material: MaterialCreate):
+    material_obj = Material(id=material_id, **material.model_dump())
+    result = await db.materials.replace_one({"id": material_id}, material_obj.model_dump())
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Material not found")
+    return material_obj
+
+@api_router.delete("/materials/{material_id}")
+async def delete_material(material_id: str):
+    result = await db.materials.delete_one({"id": material_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Material not found")
+    return {"message": "Material deleted"}
+
+# Orders endpoints
+@api_router.post("/orders", response_model=Order)
+async def create_order(order: OrderCreate):
+    order_obj = Order(**order.model_dump())
+    await db.orders.insert_one(order_obj.model_dump())
+    return order_obj
+
+@api_router.get("/orders", response_model=List[Order])
+async def get_orders(status: Optional[OrderStatus] = None, client: Optional[str] = None):
+    query = {}
+    if status:
+        query["status"] = status
+    if client:
+        query["client"] = {"$regex": client, "$options": "i"}
+    orders = await db.orders.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return orders
+
+@api_router.get("/orders/{order_id}", response_model=Order)
+async def get_order(order_id: str):
+    order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order
+
+@api_router.put("/orders/{order_id}", response_model=Order)
+async def update_order(order_id: str, order_update: OrderUpdate):
+    order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
     
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    update_data = {k: v for k, v in order_update.model_dump().items() if v is not None}
+    if update_data:
+        await db.orders.update_one({"id": order_id}, {"$set": update_data})
+        order.update(update_data)
+    return order
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+@api_router.delete("/orders/{order_id}")
+async def delete_order(order_id: str):
+    result = await db.orders.delete_one({"id": order_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return {"message": "Order deleted"}
 
-# Add your routes to the router instead of directly to app
-@api_router.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
+# Stages endpoints
+@api_router.post("/orders/{order_id}/stages", response_model=Stage)
+async def add_stage(order_id: str, stage: StageCreate):
+    order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
     
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
+    stage_obj = Stage(**stage.model_dump())
+    await db.orders.update_one(
+        {"id": order_id},
+        {"$push": {"stages": stage_obj.model_dump()}}
+    )
+    return stage_obj
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
+@api_router.put("/orders/{order_id}/stages/{stage_id}", response_model=Stage)
+async def update_stage(order_id: str, stage_id: str, stage_update: StageCreate):
+    order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
     
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
+    stages = order.get("stages", [])
+    stage_index = next((i for i, s in enumerate(stages) if s["id"] == stage_id), None)
+    if stage_index is None:
+        raise HTTPException(status_code=404, detail="Stage not found")
     
-    return status_checks
+    stage_obj = Stage(id=stage_id, **stage_update.model_dump())
+    stages[stage_index] = stage_obj.model_dump()
+    
+    await db.orders.update_one({"id": order_id}, {"$set": {"stages": stages}})
+    return stage_obj
 
-# Include the router in the main app
+@api_router.post("/orders/{order_id}/stages/{stage_id}/costs", response_model=CostItem)
+async def add_cost_item(order_id: str, stage_id: str, cost: CostItemCreate):
+    order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    stages = order.get("stages", [])
+    stage_index = next((i for i, s in enumerate(stages) if s["id"] == stage_id), None)
+    if stage_index is None:
+        raise HTTPException(status_code=404, detail="Stage not found")
+    
+    total = cost.quantity * cost.price_per_unit
+    cost_obj = CostItem(**cost.model_dump(), total=total)
+    
+    stages[stage_index].setdefault("cost_items", []).append(cost_obj.model_dump())
+    stage_total = sum(item.get("total", 0) for item in stages[stage_index]["cost_items"])
+    stages[stage_index]["total_cost"] = stage_total
+    
+    # Recalculate order costs
+    actual_cost = sum(s.get("total_cost", 0) for s in stages)
+    sale_price = actual_cost * 1.6
+    cash_price = sale_price
+    cashless_price = cash_price / 0.87
+    
+    await db.orders.update_one(
+        {"id": order_id},
+        {"$set": {
+            "stages": stages,
+            "actual_cost": actual_cost,
+            "sale_price": sale_price,
+            "cash_price": cash_price,
+            "cashless_price": cashless_price
+        }}
+    )
+    return cost_obj
+
+# Calendar endpoints
+@api_router.get("/calendar")
+async def get_calendar_data(start_date: str, end_date: str):
+    orders = await db.orders.find({
+        "stages": {
+            "$elemMatch": {
+                "$or": [
+                    {"start_date": {"$lte": end_date}, "end_date": {"$gte": start_date}},
+                    {"start_date": {"$gte": start_date, "$lte": end_date}}
+                ]
+            }
+        }
+    }, {"_id": 0}).to_list(1000)
+    
+    events = []
+    for order in orders:
+        for stage in order.get("stages", []):
+            if stage.get("start_date") and stage.get("end_date"):
+                events.append({
+                    "id": stage["id"],
+                    "order_id": order["id"],
+                    "order_name": order["name"],
+                    "client": order["client"],
+                    "stage_type": stage["type"],
+                    "status": stage["status"],
+                    "start": stage["start_date"],
+                    "end": stage["end_date"],
+                    "master": stage.get("master"),
+                    "title": f"{order['name']} - {stage['type']}"
+                })
+    return events
+
+# Statistics
+@api_router.get("/statistics")
+async def get_statistics():
+    total_orders = await db.orders.count_documents({})
+    active_orders = await db.orders.count_documents({"status": {"$in": ["project", "estimation", "production"]}})
+    completed_orders = await db.orders.count_documents({"status": "completed"})
+    
+    # Total revenue from completed orders
+    completed = await db.orders.find({"status": "completed"}, {"_id": 0, "cash_price": 1}).to_list(1000)
+    total_revenue = sum(o.get("cash_price", 0) for o in completed)
+    
+    return {
+        "total_orders": total_orders,
+        "active_orders": active_orders,
+        "completed_orders": completed_orders,
+        "total_revenue": total_revenue
+    }
+
 app.include_router(api_router)
 
 app.add_middleware(
@@ -77,7 +331,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
