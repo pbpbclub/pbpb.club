@@ -153,9 +153,9 @@ const Calendar = () => {
                 <div
                   key={date}
                   data-testid={`calendar-day-${date}`}
-                  className={`min-h-[120px] p-2 border rounded-sm ${
-                    isToday ? 'bg-emerald-50 border-emerald-300' : 'bg-white hover:bg-accent'
-                  } transition-colors`}
+                  className={`min-h-[120px] p-2 border rounded transition-colors ${
+                    isToday ? 'bg-orange-50 border-[#E26A2D] shadow-sm' : 'bg-white hover:bg-accent/50 border-gray-300'
+                  }`}
                 >
                   <div
                     className={`text-sm font-semibold mb-2 ${
