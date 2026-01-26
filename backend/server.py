@@ -49,6 +49,13 @@ class MaterialType(str, Enum):
     paint = "paint"
     other = "other"
 
+class Specialization(str, Enum):
+    welding = "welding"
+    painting = "painting"
+    woodwork = "woodwork"
+    upholstery = "upholstery"
+    universal = "universal"
+
 class PaymentStage(str, Enum):
     prepayment = "prepayment"
     production = "production"
