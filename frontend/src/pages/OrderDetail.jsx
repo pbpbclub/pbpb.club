@@ -150,7 +150,7 @@ const OrderDetail = () => {
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
               Себестоимость
             </div>
-            <div className="text-2xl font-bold font-mono">{formatCurrency(order.actual_cost)}</div>
+            <div className="text-2xl font-bold font-mono text-gray-900">{formatCurrency(order.actual_cost)}</div>
           </CardContent>
         </Card>
         <Card className="border-gray-300 shadow-sm">
@@ -158,7 +158,7 @@ const OrderDetail = () => {
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
               Цена наличными
             </div>
-            <div className="text-2xl font-bold font-mono text-[#E26A2D]">{formatCurrency(order.cash_price)}</div>
+            <div className="text-2xl font-bold font-mono text-[#384E84]">{formatCurrency(order.cash_price)}</div>
           </CardContent>
         </Card>
         <Card className="border-gray-300 shadow-sm">
@@ -166,7 +166,7 @@ const OrderDetail = () => {
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
               Цена безналичными
             </div>
-            <div className="text-2xl font-bold font-mono text-[#384E84]">{formatCurrency(order.cashless_price)}</div>
+            <div className="text-2xl font-bold font-mono text-[#7A7A79]">{formatCurrency(order.cashless_price)}</div>
           </CardContent>
         </Card>
       </div>
