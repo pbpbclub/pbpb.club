@@ -61,7 +61,7 @@
   }
   
   table tbody tr {
-    background-color: white !important;
+    background-color: white;
   }
   
   table tbody tr:hover {
