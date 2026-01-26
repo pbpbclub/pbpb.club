@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Package, Calendar, Database, Home, Settings, Users } from 'lucide-react';
+import { Package, Calendar, Database, Home, Settings, Users, HardHat } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Layout = ({ children }) => {
@@ -10,6 +10,7 @@ const Layout = ({ children }) => {
     { name: 'Главная', href: '/', icon: Home },
     { name: 'Заказы', href: '/orders', icon: Package },
     { name: 'Заказчики', href: '/clients', icon: Users },
+    { name: 'Мастера', href: '/masters', icon: HardHat },
     { name: 'Календарь', href: '/calendar', icon: Calendar },
     { name: 'Материалы', href: '/materials', icon: Database },
     { name: 'Настройки', href: '/settings', icon: Settings },
