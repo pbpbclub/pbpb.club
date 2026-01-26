@@ -202,6 +202,16 @@ const Materials = () => {
               ) : (
                 filteredMaterials.map((material) => (
                   <TableRow key={material.id} data-testid={`material-row-${material.id}`}>
+                    <TableCell className="w-12">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => deleteMaterial(material.id)}
+                        data-testid={`delete-material-${material.id}`}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </TableCell>
                     <TableCell className="font-medium">{material.name}</TableCell>
                     <TableCell>
                       <Badge className={materialTypeColors[material.type]}>
@@ -214,26 +224,6 @@ const Materials = () => {
                     <TableCell>{material.unit}</TableCell>
                     <TableCell className="text-sm text-gray-900">
                       {material.notes || '—'}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => openEditDialog(material)}
-                          data-testid={`edit-material-${material.id}`}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => deleteMaterial(material.id)}
-                          data-testid={`delete-material-${material.id}`}
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
                     </TableCell>
                   </TableRow>
                 ))
