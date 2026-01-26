@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Plus, Edit2, Trash2, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -184,7 +184,7 @@ const Materials = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="font-semibold w-12"></TableHead>
+                <TableHead className="font-semibold w-20"></TableHead>
                 <TableHead className="font-semibold">Название</TableHead>
                 <TableHead className="font-semibold">Тип</TableHead>
                 <TableHead className="font-semibold font-mono">Цена</TableHead>
@@ -202,15 +202,25 @@ const Materials = () => {
               ) : (
                 filteredMaterials.map((material) => (
                   <TableRow key={material.id} data-testid={`material-row-${material.id}`}>
-                    <TableCell className="w-12">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => deleteMaterial(material.id)}
-                        data-testid={`delete-material-${material.id}`}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
+                    <TableCell className="w-20">
+                      <div className="flex items-center gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => openEditDialog(material)}
+                          data-testid={`edit-material-${material.id}`}
+                        >
+                          <Pencil className="w-4 h-4 text-gray-600" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => deleteMaterial(material.id)}
+                          data-testid={`delete-material-${material.id}`}
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium">{material.name}</TableCell>
                     <TableCell>
