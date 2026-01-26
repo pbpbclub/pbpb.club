@@ -208,7 +208,7 @@ const Materials = () => {
                         {materialTypeLabels[material.type]}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-mono font-semibold">
+                    <TableCell className="font-semibold">
                       {formatCurrency(material.price)}
                     </TableCell>
                     <TableCell>{material.unit}</TableCell>

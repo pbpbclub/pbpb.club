@@ -150,7 +150,7 @@ const OrderDetail = () => {
             <div className="text-xs text-gray-600 uppercase tracking-wider mb-2">
               Себестоимость
             </div>
-            <div className="text-2xl font-bold font-mono text-gray-900">{formatCurrency(order.actual_cost)}</div>
+            <div className="text-2xl font-bold text-gray-900">{formatCurrency(order.actual_cost)}</div>
           </CardContent>
         </Card>
         <Card className="border-gray-300 shadow-sm">
@@ -158,7 +158,7 @@ const OrderDetail = () => {
             <div className="text-xs text-gray-600 uppercase tracking-wider mb-2">
               Цена наличными
             </div>
-            <div className="text-2xl font-bold font-mono text-[#384E84]">{formatCurrency(order.cash_price)}</div>
+            <div className="text-2xl font-bold text-[#384E84]">{formatCurrency(order.cash_price)}</div>
           </CardContent>
         </Card>
         <Card className="border-gray-300 shadow-sm">
@@ -166,7 +166,7 @@ const OrderDetail = () => {
             <div className="text-xs text-gray-600 uppercase tracking-wider mb-2">
               Цена безналичными
             </div>
-            <div className="text-2xl font-bold font-mono text-[#7A7A79]">{formatCurrency(order.cashless_price)}</div>
+            <div className="text-2xl font-bold text-[#7A7A79]">{formatCurrency(order.cashless_price)}</div>
           </CardContent>
         </Card>
       </div>
@@ -342,14 +342,14 @@ const OrderDetail = () => {
                             <td className="py-2 text-right font-mono">
                               {formatCurrency(item.price_per_unit)}
                             </td>
-                            <td className="py-2 text-right font-mono font-semibold">
+                            <td className="py-2 text-right font-semibold">
                               {formatCurrency(item.total)}
                             </td>
                           </tr>
                         ))}
                         <tr className="font-bold">
                           <td colSpan={3} className="py-2 text-right">Итого по этапу:</td>
-                          <td className="py-2 text-right font-mono text-lg">
+                          <td className="py-2 text-right text-lg">
                             {formatCurrency(stage.total_cost)}
                           </td>
                         </tr>

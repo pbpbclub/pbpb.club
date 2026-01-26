@@ -21,7 +21,7 @@ const StatCard = ({ title, value, icon: Icon, trend, color = 'gray' }) => {
             <p className="text-xs text-gray-600 uppercase tracking-wider mb-2">
               {title}
             </p>
-            <h3 className="text-3xl font-bold font-mono text-gray-900">{value}</h3>
+            <h3 className="text-3xl font-bold text-gray-900">{value}</h3>
             {trend && (
               <p className="text-sm text-[#384E84] mt-2 flex items-center gap-1">
                 <TrendingUp className="w-4 h-4" />

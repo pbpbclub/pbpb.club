@@ -251,10 +251,10 @@ const Orders = () => {
                     <TableCell className="text-sm text-gray-600">
                       {formatDate(order.planned_completion_date)}
                     </TableCell>
-                    <TableCell className="font-mono text-sm">
+                    <TableCell className="text-sm">
                       {formatCurrency(order.actual_cost)}
                     </TableCell>
-                    <TableCell className="font-mono text-sm font-semibold">
+                    <TableCell className="text-sm font-semibold">
                       {formatCurrency(order.cash_price)}
                     </TableCell>
                   </TableRow>
