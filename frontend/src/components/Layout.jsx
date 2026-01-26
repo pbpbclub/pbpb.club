@@ -17,10 +17,15 @@ const Layout = ({ children }) => {
   return (
     <div className="flex h-screen bg-[#F8F9FA]">
       {/* Sidebar */}
-      <aside className="w-[250px] bg-[#111827] text-white flex flex-col fixed h-full">
-        <div className="p-6 border-b border-gray-700">
-          <h1 className="text-2xl font-black tracking-tight">FurnitureOS</h1>
-          <p className="text-xs text-gray-400 mt-1">Production Manager</p>
+      <aside className="w-[250px] bg-[#7A7A79] text-white flex flex-col fixed h-full">
+        <div className="p-6 border-b border-gray-600">
+          <div className="flex items-center gap-3 mb-2">
+            <img src="/logo.png" alt="Factory Hub" className="w-10 h-10" />
+            <div>
+              <h1 className="text-xl font-black tracking-tight">Factory Hub</h1>
+              <p className="text-xs text-gray-300 mt-0.5">Production Manager</p>
+            </div>
+          </div>
         </div>
         
         <nav className="flex-1 p-4 space-y-1">
@@ -33,10 +38,10 @@ const Layout = ({ children }) => {
                 to={item.href}
                 data-testid={`nav-${item.name.toLowerCase()}`}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm font-medium transition-all duration-200',
+                  'flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium transition-all duration-200',
                   isActive
-                    ? 'bg-white/10 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    ? 'bg-[#E26A2D] text-white shadow-md'
+                    : 'text-gray-200 hover:text-white hover:bg-gray-700'
                 )}
               >
                 <Icon className="w-5 h-5" strokeWidth={1.5} />
@@ -46,14 +51,14 @@ const Layout = ({ children }) => {
           })}
         </nav>
 
-        <div className="p-4 border-t border-gray-700">
+        <div className="p-4 border-t border-gray-600">
           <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-xs font-bold">
+            <div className="w-8 h-8 rounded-full bg-[#E26A2D] flex items-center justify-center text-xs font-bold">
               ВП
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">Владелец</p>
-              <p className="text-xs text-gray-400 truncate">Производство</p>
+              <p className="text-xs text-gray-300 truncate">Производство</p>
             </div>
           </div>
         </div>
