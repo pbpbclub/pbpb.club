@@ -119,6 +119,31 @@ class ClientUpdate(BaseModel):
     email: Optional[str] = None
     notes: Optional[str] = None
 
+# Master Models
+class Master(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: f"master_{int(datetime.now().timestamp()*1000)}")
+    name: str
+    phone: Optional[str] = None
+    specialization: Specialization = Specialization.universal
+    hourly_rate: float = 0.0
+    notes: Optional[str] = None
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class MasterCreate(BaseModel):
+    name: str
+    phone: Optional[str] = None
+    specialization: Specialization = Specialization.universal
+    hourly_rate: float = 0.0
+    notes: Optional[str] = None
+
+class MasterUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    specialization: Optional[Specialization] = None
+    hourly_rate: Optional[float] = None
+    notes: Optional[str] = None
+
 # Models
 class Material(BaseModel):
     id: str = Field(default_factory=lambda: f"mat_{int(datetime.now().timestamp()*1000)}")
