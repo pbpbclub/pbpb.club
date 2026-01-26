@@ -19,11 +19,11 @@ const stageTypeLabels = {
 
 const stageTypeColors = {
   project: 'bg-[#384E84]',
-  estimation: 'bg-[#E26A2D]',
-  welding: 'bg-red-600',
-  painting: 'bg-purple-600',
-  woodwork: 'bg-[#7A7A79]',
-  upholstery: 'bg-green-600',
+  estimation: 'bg-[#7A7A79]',
+  welding: 'bg-[#384E84]',
+  painting: 'bg-[#7A7A79]',
+  woodwork: 'bg-[#212121]',
+  upholstery: 'bg-[#7A7A79]',
 };
 
 const Calendar = () => {
