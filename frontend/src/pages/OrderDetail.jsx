@@ -140,7 +140,7 @@ const OrderDetail = () => {
       </Button>
 
       <div className="mb-6">
-        <h1 className="text-4xl font-bold tracking-tight mb-2">{order.name}</h1>
+        <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">{order.name}</h1>
         <p className="text-muted-foreground">Клиент: {order.client}</p>
       </div>
 
