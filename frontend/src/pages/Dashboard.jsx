@@ -6,11 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const StatCard = ({ title, value, icon: Icon, trend, color = 'orange' }) => {
+const StatCard = ({ title, value, icon: Icon, trend, color = 'gray' }) => {
   const colorClasses = {
-    orange: 'from-[#E26A2D] to-[#D85A1D]',
-    blue: 'from-[#384E84] to-[#2A3B64]',
     gray: 'from-[#7A7A79] to-[#5A5A59]',
+    blue: 'from-[#384E84] to-[#2A3B64]',
     black: 'from-[#212121] to-[#111111]',
   };
 
@@ -24,7 +23,7 @@ const StatCard = ({ title, value, icon: Icon, trend, color = 'orange' }) => {
             </p>
             <h3 className="text-3xl font-bold font-mono">{value}</h3>
             {trend && (
-              <p className="text-sm text-[#E26A2D] mt-2 flex items-center gap-1">
+              <p className="text-sm text-[#384E84] mt-2 flex items-center gap-1">
                 <TrendingUp className="w-4 h-4" />
                 {trend}
               </p>
