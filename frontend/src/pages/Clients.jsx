@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -33,6 +33,16 @@ const Clients = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [newClient, setNewClient] = useState({
+    name: '',
+    inn: '',
+    contact_person: '',
+    phone: '',
+    email: '',
+    notes: '',
+  });
+  const [editingClient, setEditingClient] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
     name: '',
     inn: '',
     contact_person: '',
@@ -75,6 +85,30 @@ const Clients = () => {
       fetchClients();
     } catch (error) {
       console.error('Error deleting client:', error);
+    }
+  };
+
+  const openEditDialog = (client) => {
+    setEditingClient(client);
+    setEditForm({
+      name: client.name,
+      inn: client.inn || '',
+      contact_person: client.contact_person || '',
+      phone: client.phone || '',
+      email: client.email || '',
+      notes: client.notes || '',
+    });
+    setEditDialogOpen(true);
+  };
+
+  const updateClient = async () => {
+    try {
+      await axios.put(`${API}/clients/${editingClient.id}`, editForm);
+      setEditDialogOpen(false);
+      setEditingClient(null);
+      fetchClients();
+    } catch (error) {
+      console.error('Error updating client:', error);
     }
   };
 
@@ -211,7 +245,7 @@ const Clients = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="font-semibold w-12"></TableHead>
+                <TableHead className="font-semibold w-20"></TableHead>
                 <TableHead className="font-semibold">Название</TableHead>
                 <TableHead className="font-semibold">ИНН</TableHead>
                 <TableHead className="font-semibold">Контактное лицо</TableHead>
@@ -233,18 +267,31 @@ const Clients = () => {
                     data-testid={`client-row-${client.id}`}
                     className="cursor-pointer"
                   >
-                    <TableCell className="w-12">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteClient(client.id);
-                        }}
-                        data-testid={`delete-client-${client.id}`}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
+                    <TableCell className="w-20">
+                      <div className="flex items-center gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEditDialog(client);
+                          }}
+                          data-testid={`edit-client-${client.id}`}
+                        >
+                          <Pencil className="w-4 h-4 text-gray-600" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteClient(client.id);
+                          }}
+                          data-testid={`delete-client-${client.id}`}
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium" onClick={() => navigate(`/clients/${client.id}`)}>{client.name}</TableCell>
                     <TableCell onClick={() => navigate(`/clients/${client.id}`)}>{client.inn || '—'}</TableCell>
