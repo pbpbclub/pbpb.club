@@ -260,28 +260,80 @@ const Orders = () => {
       </div>
 
       <Card className="mb-6 border-gray-300 shadow-sm">
-        <div className="p-4 flex items-center gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-900" />
-            <Input
-              data-testid="search-orders-input"
-              placeholder="Поиск по названию или клиенту..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+        <div className="p-4 space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-900" />
+              <Input
+                data-testid="search-orders-input"
+                placeholder="Поиск по названию или клиенту..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <select
+              data-testid="filter-status-select"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="h-9 rounded border-2 border-gray-300 bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#384E84] focus:ring-opacity-20 focus:border-[#384E84]"
+            >
+              <option value="">Все статусы</option>
+              {Object.keys(statusLabels).map(status => (
+                <option key={status} value={status}>{statusLabels[status]}</option>
+              ))}
+            </select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+              data-testid="toggle-filters-btn"
+            >
+              <Filter className="w-4 h-4 mr-2" />
+              Фильтры
+            </Button>
           </div>
-          <select
-            data-testid="filter-status-select"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 rounded border-2 border-gray-300 bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#384E84] focus:ring-opacity-20 focus:border-[#384E84]"
-          >
-            <option value="">Все статусы</option>
-            {Object.keys(statusLabels).map(status => (
-              <option key={status} value={status}>{statusLabels[status]}</option>
-            ))}
-          </select>
+          
+          {showFilters && (
+            <div className="flex items-center gap-4 pt-2 border-t border-gray-200">
+              <div className="flex-1">
+                <Label className="text-xs text-gray-600 mb-1 block">Клиент</Label>
+                <select
+                  value={clientFilter}
+                  onChange={(e) => setClientFilter(e.target.value)}
+                  className="w-full h-9 rounded border-2 border-gray-300 bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#384E84] focus:ring-opacity-20 focus:border-[#384E84]"
+                >
+                  <option value="">Все клиенты</option>
+                  {uniqueClients.map(client => (
+                    <option key={client} value={client}>{client}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label className="text-xs text-gray-600 mb-1 block">Дата от</Label>
+                <Input
+                  type="date"
+                  value={dateFromFilter}
+                  onChange={(e) => setDateFromFilter(e.target.value)}
+                  className="h-9"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-gray-600 mb-1 block">Дата до</Label>
+                <Input
+                  type="date"
+                  value={dateToFilter}
+                  onChange={(e) => setDateToFilter(e.target.value)}
+                  className="h-9"
+                />
+              </div>
+              <div className="pt-5">
+                <Button variant="ghost" size="sm" onClick={clearFilters}>
+                  Сбросить
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </Card>
 
