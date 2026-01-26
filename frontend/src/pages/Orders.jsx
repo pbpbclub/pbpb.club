@@ -236,26 +236,40 @@ const Orders = () => {
                   <TableRow
                     key={order.id}
                     data-testid={`order-row-${order.id}`}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => navigate(`/orders/${order.id}`)}
+                    className="cursor-pointer"
                   >
-                    <TableCell className="font-medium">{order.name}</TableCell>
-                    <TableCell>{order.client}</TableCell>
-                    <TableCell>
+                    <TableCell className="w-12">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm('Удалить заказ?')) {
+                            axios.delete(`${API}/orders/${order.id}`).then(fetchOrders);
+                          }
+                        }}
+                        data-testid={`delete-order-${order.id}`}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                    <TableCell className="font-medium" onClick={() => navigate(`/orders/${order.id}`)}>{order.name}</TableCell>
+                    <TableCell onClick={() => navigate(`/orders/${order.id}`)}>{order.client}</TableCell>
+                    <TableCell onClick={() => navigate(`/orders/${order.id}`)}>
                       <Badge className={statusColors[order.status]}>
                         {statusLabels[order.status]}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-gray-900">
+                    <TableCell className="text-sm text-gray-900" onClick={() => navigate(`/orders/${order.id}`)}>
                       {formatDate(order.order_date)}
                     </TableCell>
-                    <TableCell className="text-sm text-gray-900">
+                    <TableCell className="text-sm text-gray-900" onClick={() => navigate(`/orders/${order.id}`)}>
                       {formatDate(order.planned_completion_date)}
                     </TableCell>
-                    <TableCell className="text-sm">
+                    <TableCell className="text-sm" onClick={() => navigate(`/orders/${order.id}`)}>
                       {formatCurrency(order.actual_cost)}
                     </TableCell>
-                    <TableCell className="text-sm font-semibold">
+                    <TableCell className="text-sm font-semibold" onClick={() => navigate(`/orders/${order.id}`)}>
                       {formatCurrency(order.cash_price)}
                     </TableCell>
                   </TableRow>
