@@ -305,6 +305,80 @@ const Clients = () => {
           </Table>
         )}
       </Card>
+
+      {/* Edit Client Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Редактировать заказчика</DialogTitle>
+            <DialogDescription>
+              Измените информацию о заказчике
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="edit-name">Название контрагента</Label>
+              <Input
+                id="edit-name"
+                data-testid="edit-client-name-input"
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-inn">ИНН</Label>
+              <Input
+                id="edit-inn"
+                value={editForm.inn}
+                onChange={(e) => setEditForm({ ...editForm, inn: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-contact">Контактное лицо</Label>
+              <Input
+                id="edit-contact"
+                value={editForm.contact_person}
+                onChange={(e) => setEditForm({ ...editForm, contact_person: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-phone">Телефон</Label>
+                <Input
+                  id="edit-phone"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-email">Email</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="edit-notes">Примечания</Label>
+              <Input
+                id="edit-notes"
+                value={editForm.notes}
+                onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+              />
+            </div>
+            <Button
+              data-testid="save-client-btn"
+              onClick={updateClient}
+              className="w-full"
+              disabled={!editForm.name}
+            >
+              Сохранить
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
