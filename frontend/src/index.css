@@ -43,4 +43,12 @@
   .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
+  
+  input:focus, 
+  select:focus, 
+  textarea:focus,
+  button:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(56, 78, 132, 0.2) !important;
+  }
 }
