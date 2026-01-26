@@ -384,6 +384,61 @@ async def get_statistics():
         "total_revenue": total_revenue
     }
 
+# Clients endpoints
+@api_router.post("/clients", response_model=Client)
+async def create_client(client_data: ClientCreate):
+    client_obj = Client(**client_data.model_dump())
+    await db.clients.insert_one(client_obj.model_dump())
+    return client_obj
+
+@api_router.get("/clients", response_model=List[Client])
+async def get_clients(search: Optional[str] = None):
+    query = {}
+    if search:
+        query["$or"] = [
+            {"name": {"$regex": search, "$options": "i"}},
+            {"inn": {"$regex": search, "$options": "i"}},
+            {"contact_person": {"$regex": search, "$options": "i"}}
+        ]
+    clients = await db.clients.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return clients
+
+@api_router.get("/clients/{client_id}", response_model=Client)
+async def get_client(client_id: str):
+    client = await db.clients.find_one({"id": client_id}, {"_id": 0})
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    return client
+
+@api_router.put("/clients/{client_id}", response_model=Client)
+async def update_client(client_id: str, client_update: ClientUpdate):
+    client = await db.clients.find_one({"id": client_id}, {"_id": 0})
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    
+    update_data = {k: v for k, v in client_update.model_dump().items() if v is not None}
+    if update_data:
+        await db.clients.update_one({"id": client_id}, {"$set": update_data})
+        client.update(update_data)
+    return client
+
+@api_router.delete("/clients/{client_id}")
+async def delete_client(client_id: str):
+    result = await db.clients.delete_one({"id": client_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Client not found")
+    return {"message": "Client deleted"}
+
+@api_router.get("/clients/{client_id}/orders")
+async def get_client_orders(client_id: str):
+    client = await db.clients.find_one({"id": client_id}, {"_id": 0})
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    
+    client_name = client["name"]
+    orders = await db.orders.find({"client": client_name}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return orders
+
 app.include_router(api_router)
 
 app.add_middleware(
