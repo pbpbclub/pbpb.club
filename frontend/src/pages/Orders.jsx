@@ -195,7 +195,7 @@ const Orders = () => {
             data-testid="filter-status-select"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 rounded-sm border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+            className="h-9 rounded border-2 border-gray-300 bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#384E84] focus:ring-opacity-20 focus:border-[#384E84]"
           >
             <option value="">Все статусы</option>
             {Object.keys(statusLabels).map(status => (
