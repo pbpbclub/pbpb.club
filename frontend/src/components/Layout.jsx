@@ -19,13 +19,7 @@ const Layout = ({ children }) => {
       {/* Sidebar */}
       <aside className="w-[250px] bg-[#7A7A79] text-white flex flex-col fixed h-full">
         <div className="p-6 border-b border-gray-600">
-          <div className="flex items-center gap-3 mb-2">
-            <img src="/logo.png" alt="Factory Hub" className="w-10 h-10" />
-            <div>
-              <h1 className="text-xl font-black tracking-tight">Factory Hub</h1>
-              <p className="text-xs text-gray-300 mt-0.5">Production Manager</p>
-            </div>
-          </div>
+          <img src="/logo.png" alt="Factory Hub" className="h-12 w-auto" />
         </div>
         
         <nav className="flex-1 p-4 space-y-1">
