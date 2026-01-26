@@ -211,12 +211,12 @@ const Clients = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="font-semibold w-12"></TableHead>
                 <TableHead className="font-semibold">Название</TableHead>
                 <TableHead className="font-semibold">ИНН</TableHead>
                 <TableHead className="font-semibold">Контактное лицо</TableHead>
                 <TableHead className="font-semibold">Телефон</TableHead>
                 <TableHead className="font-semibold">Email</TableHead>
-                <TableHead className="font-semibold text-right">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
