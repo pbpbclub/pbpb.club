@@ -237,14 +237,14 @@ const OrderDetail = () => {
 
       <div className="space-y-4">
         {order.stages.length === 0 ? (
-          <Card>
+          <Card className="border-gray-300 shadow-sm">
             <CardContent className="p-12 text-center text-muted-foreground">
               Этапов пока нет
             </CardContent>
           </Card>
         ) : (
           order.stages.map((stage) => (
-            <Card key={stage.id}>
+            <Card key={stage.id} className="border-gray-300 shadow-sm">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">{stageTypeLabels[stage.type]}</CardTitle>
