@@ -93,13 +93,13 @@ const Dashboard = () => {
             title="В работе"
             value={stats.active_orders}
             icon={Clock}
-            color="orange"
+            color="blue"
           />
           <StatCard
             title="Выполнено"
             value={stats.completed_orders}
             icon={CheckCircle}
-            color="blue"
+            color="gray"
           />
           <StatCard
             title="Выручка"
