@@ -99,7 +99,7 @@ const Calendar = () => {
         <p className="text-muted-foreground">Планирование этапов и контроль загрузки</p>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-6 border-gray-300 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold capitalize">{monthName}</h2>
           <div className="flex gap-2">
