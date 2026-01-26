@@ -42,11 +42,11 @@ const materialTypeLabels = {
 };
 
 const materialTypeColors = {
-  metal: 'bg-slate-100 text-slate-700 border-slate-200',
-  wood: 'bg-amber-100 text-amber-700 border-amber-200',
-  fabric: 'bg-blue-100 text-blue-700 border-blue-200',
-  paint: 'bg-purple-100 text-purple-700 border-purple-200',
-  other: 'bg-gray-100 text-gray-700 border-gray-200',
+  metal: 'bg-gray-100 text-gray-700 border-gray-300',
+  wood: 'bg-orange-100 text-[#E26A2D] border-orange-300',
+  fabric: 'bg-blue-100 text-[#384E84] border-blue-300',
+  paint: 'bg-purple-100 text-purple-700 border-purple-300',
+  other: 'bg-gray-100 text-gray-600 border-gray-300',
 };
 
 const Materials = () => {
