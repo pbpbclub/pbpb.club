@@ -18,8 +18,8 @@ const Layout = ({ children }) => {
     <div className="flex h-screen bg-[#F8F9FA]">
       {/* Sidebar */}
       <aside className="w-[250px] bg-[#7A7A79] text-white flex flex-col fixed h-full">
-        <div className="py-6 px-4 border-b border-gray-600 flex items-center justify-center">
-          <img src="/logo.png" alt="Factory Hub" className="w-[85%] h-auto" />
+        <div className="py-6 px-4 border-b border-gray-600 flex items-center justify-center bg-[#7A7A79]">
+          <img src="/logo.png" alt="Factory Hub" className="w-[85%] h-auto" style={{backgroundColor: '#7A7A79'}} />
         </div>
         
         <nav className="flex-1 p-4 space-y-1">
