@@ -184,12 +184,12 @@ const Materials = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="font-semibold w-12"></TableHead>
                 <TableHead className="font-semibold">Название</TableHead>
                 <TableHead className="font-semibold">Тип</TableHead>
                 <TableHead className="font-semibold font-mono">Цена</TableHead>
                 <TableHead className="font-semibold">Единица</TableHead>
                 <TableHead className="font-semibold">Примечания</TableHead>
-                <TableHead className="font-semibold text-right">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
