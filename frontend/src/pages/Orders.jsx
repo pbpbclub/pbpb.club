@@ -285,7 +285,7 @@ const Orders = () => {
               />
             </div>
             <div>
-              <Label className="text-[#212121]">Клиент</Label>
+              <Label className="text-[#212121]">Заказчик</Label>
               <Input
                 value={formData.client}
                 onChange={(e) => setFormData({ ...formData, client: e.target.value })}
