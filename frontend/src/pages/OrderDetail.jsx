@@ -109,22 +109,16 @@ const OrderDetail = () => {
     price_per_unit: 500,
   });
 
-  // Mock files and events
-  const [files] = useState([
-    { id: 1, name: 'Смета_v1.pdf', type: 'document', date: '2026-01-15' },
-    { id: 2, name: 'Макет_3D.png', type: 'image', date: '2026-01-18' },
-    { id: 3, name: 'Счет_оплата.pdf', type: 'invoice', date: '2026-01-20' },
-  ]);
-  
-  const [events] = useState([
-    { id: 1, type: 'created', message: 'Заказ создан', date: '2026-01-10 10:30', user: 'Менеджер' },
-    { id: 2, type: 'status', message: 'Статус изменен на "Производство"', date: '2026-01-12 14:15', user: 'Система' },
-    { id: 3, type: 'stage', message: 'Добавлен этап "Сварка"', date: '2026-01-13 09:00', user: 'Мастер' },
-  ]);
+  // Files and events from API
+  const [files, setFiles] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   useEffect(() => {
     fetchOrder();
     fetchClients();
+    fetchFiles();
+    fetchEvents();
   }, [orderId]);
 
   const fetchOrder = async () => {
