@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Plus, Search, Trash2, Package, ShoppingCart, Mail, MessageSquare, Send, Edit2, Filter } from 'lucide-react';
+import { Plus, Search, Trash2, Edit2, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
@@ -33,18 +41,19 @@ const materialTypeLabels = {
   other: 'Другое',
 };
 
+const sourceLabels = {
+  warehouse: 'Из склада',
+  purchase: 'Под заказ',
+};
+
 const Materials = () => {
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('all'); // all, warehouse, purchase
+  const [typeFilter, setTypeFilter] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [editingMaterial, setEditingMaterial] = useState(null);
-  
-  // Filters for each section
-  const [warehouseTypeFilter, setWarehouseTypeFilter] = useState('all');
-  const [purchaseTypeFilter, setPurchaseTypeFilter] = useState('all');
-  
   const [formData, setFormData] = useState({
     name: '',
     type: 'metal',
@@ -76,7 +85,7 @@ const Materials = () => {
     }
   };
 
-  const openCreateDialog = (source = 'warehouse') => {
+  const openCreateDialog = () => {
     setEditingMaterial(null);
     setFormData({ 
       name: '', 
@@ -84,7 +93,7 @@ const Materials = () => {
       article: '',
       price: 0, 
       unit: 'шт', 
-      source: source,
+      source: 'warehouse',
       quantity_available: 0,
       quantity_required: 0,
       location: '',
@@ -95,7 +104,8 @@ const Materials = () => {
     setOpenDialog(true);
   };
 
-  const openEditDialog = (material) => {
+  const openEditDialog = (material, e) => {
+    if (e) e.stopPropagation();
     setEditingMaterial(material);
     setFormData({
       name: material.name,
@@ -128,7 +138,8 @@ const Materials = () => {
     }
   };
 
-  const deleteMaterial = async (id) => {
+  const deleteMaterial = async (id, e) => {
+    if (e) e.stopPropagation();
     if (!window.confirm('Удалить материал?')) return;
     try {
       await axios.delete(`${API}/materials/${id}`);
@@ -145,36 +156,13 @@ const Materials = () => {
     }).format(value) + ' ₽';
   };
 
-  // Filter materials by tab, search and type
-  const warehouseMaterials = materials.filter(m => {
-    const isWarehouse = m.source === 'warehouse' || !m.source;
+  const filteredMaterials = materials.filter(m => {
     const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (m.article && m.article.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesType = warehouseTypeFilter === 'all' || m.type === warehouseTypeFilter;
-    return isWarehouse && matchesSearch && matchesType;
+    const matchesType = !typeFilter || m.type === typeFilter;
+    const matchesSource = !sourceFilter || m.source === sourceFilter || (!m.source && sourceFilter === 'warehouse');
+    return matchesSearch && matchesType && matchesSource;
   });
-
-  const purchaseMaterials = materials.filter(m => {
-    const isPurchase = m.source === 'purchase';
-    const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (m.article && m.article.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesType = purchaseTypeFilter === 'all' || m.type === purchaseTypeFilter;
-    return isPurchase && matchesSearch && matchesType;
-  });
-
-  // Count totals (without type filter)
-  const warehouseTotal = materials.filter(m => m.source === 'warehouse' || !m.source).length;
-  const purchaseTotal = materials.filter(m => m.source === 'purchase').length;
-
-  const filteredMaterials = activeTab === 'warehouse' ? warehouseMaterials :
-                           activeTab === 'purchase' ? purchaseMaterials :
-                           [...warehouseMaterials, ...purchaseMaterials];
-
-  const tabs = [
-    { id: 'all', label: 'Все', count: materials.length },
-    { id: 'warehouse', label: 'Из склада', count: warehouseTotal },
-    { id: 'purchase', label: 'Под заказ', count: purchaseTotal },
-  ];
 
   return (
     <div className="p-8">
@@ -182,301 +170,153 @@ const Materials = () => {
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#212121] mb-1">Материалы и Закупки</h1>
-          <p className="text-[#7A7A79]">Управление складом и закупками материалов</p>
+          <h1 className="text-3xl font-bold text-[#212121] mb-1">Материалы</h1>
+          <p className="text-[#7A7A79]">Управление базой материалов и закупками</p>
         </div>
         <Button 
           data-testid="create-material-btn" 
-          onClick={() => openCreateDialog(activeTab === 'purchase' ? 'purchase' : 'warehouse')} 
+          onClick={openCreateDialog} 
           className="gap-2 bg-[#384E84] hover:bg-[#2d3e6a]"
         >
           <Plus className="w-4 h-4" />
-          Добавить позицию
+          Добавить материал
         </Button>
       </div>
 
-      {/* Tabs and Search */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
-                ${activeTab === tab.id 
-                  ? 'bg-white text-[#212121] shadow-sm' 
-                  : 'text-[#7A7A79] hover:text-[#212121]'}`}
-              data-testid={`tab-${tab.id}`}
-            >
-              {tab.label}
-            </button>
-          ))}
+      <Card className="mb-6 border-[#DCDCDC] shadow-sm">
+        <div className="p-4 flex items-center gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7A7A79]" />
+            <Input
+              data-testid="search-materials-input"
+              placeholder="Поиск по названию или артикулу..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 border-[#DCDCDC]"
+            />
+          </div>
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="h-9 rounded border border-[#DCDCDC] bg-white px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#384E84] focus:ring-opacity-20 focus:border-[#384E84]"
+            data-testid="filter-type-select"
+          >
+            <option value="">Все типы</option>
+            {Object.entries(materialTypeLabels).map(([key, label]) => (
+              <option key={key} value={key}>{label}</option>
+            ))}
+          </select>
+          <select
+            value={sourceFilter}
+            onChange={(e) => setSourceFilter(e.target.value)}
+            className="h-9 rounded border border-[#DCDCDC] bg-white px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#384E84] focus:ring-opacity-20 focus:border-[#384E84]"
+            data-testid="filter-source-select"
+          >
+            <option value="">Все источники</option>
+            <option value="warehouse">Из склада</option>
+            <option value="purchase">Под заказ</option>
+          </select>
         </div>
-        <div className="relative w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7A7A79]" />
-          <Input
-            data-testid="search-materials-input"
-            placeholder="Поиск по артикулу..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 border-[#DCDCDC]"
-          />
-        </div>
-      </div>
+      </Card>
 
-      {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#384E84]"></div>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Warehouse Section */}
-          {(activeTab === 'all' || activeTab === 'warehouse') && (
-            <Card className="border-[#DCDCDC]">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-lg text-[#212121]">
-                    <Package className="w-5 h-5 text-[#384E84]" />
-                    Из склада (В наличии)
-                    <span className="text-sm font-normal text-[#7A7A79]">({warehouseMaterials.length})</span>
-                  </CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Filter className="w-4 h-4 text-[#7A7A79]" />
-                    <select
-                      value={warehouseTypeFilter}
-                      onChange={(e) => setWarehouseTypeFilter(e.target.value)}
-                      className="h-8 rounded border border-[#DCDCDC] bg-white px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#384E84] focus:ring-opacity-20 focus:border-[#384E84]"
-                      data-testid="warehouse-type-filter"
-                    >
-                      <option value="all">Все типы</option>
-                      {Object.entries(materialTypeLabels).map(([key, label]) => (
-                        <option key={key} value={key}>{label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0">
-                {warehouseMaterials.length === 0 ? (
-                  <div className="p-8 text-center text-[#7A7A79]">
+      <Card className="border-[#DCDCDC] shadow-sm">
+        {loading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#384E84]"></div>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-[#DCDCDC]">
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Артикул</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Наименование</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Тип</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Источник</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs text-right">Цена</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs text-right">Кол-во</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs text-right w-24"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredMaterials.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-12 text-[#7A7A79]">
                     Материалов не найдено
-                  </div>
-                ) : (
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-y border-[#DCDCDC]">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-[#7A7A79] uppercase">Артикул</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-[#7A7A79] uppercase">Наименование</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-[#7A7A79] uppercase">Кол-во (Треб.)</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-[#7A7A79] uppercase">Доступно</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-[#7A7A79] uppercase">Локация</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-[#7A7A79] uppercase w-24"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {warehouseMaterials.map((material) => (
-                      <tr key={material.id} className="border-b border-gray-100 hover:bg-gray-50" data-testid={`material-row-${material.id}`}>
-                        <td className="px-4 py-3 text-sm text-[#7A7A79] font-mono">
-                          {material.article || '—'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-[#212121]">{material.name}</div>
-                          <div className="text-xs text-[#7A7A79]">{materialTypeLabels[material.type]}</div>
-                        </td>
-                        <td className="px-4 py-3 text-right text-sm text-[#212121]">
-                          {material.quantity_required || 0} {material.unit}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <span className={`text-sm font-medium ${
-                            (material.quantity_available || 0) > (material.quantity_required || 0) 
-                              ? 'text-green-600' 
-                              : 'text-[#E26A2D]'
-                          }`}>
-                            {material.quantity_available || 0} {material.unit}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-sm text-[#7A7A79]">
-                          {material.location || '—'}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => openEditDialog(material)}
-                              className="h-8 w-8 p-0 text-[#7A7A79] hover:text-[#384E84]"
-                              data-testid={`edit-material-${material.id}`}
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => deleteMaterial(material.id)}
-                              className="h-8 w-8 p-0 text-[#7A7A79] hover:text-red-500"
-                              data-testid={`delete-material-${material.id}`}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Purchase Section */}
-          {(activeTab === 'all' || activeTab === 'purchase') && (
-            <Card className="border-[#DCDCDC]">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-lg text-[#212121]">
-                    <ShoppingCart className="w-5 h-5 text-[#E26A2D]" />
-                    Под заказ (Закупка)
-                    <span className="text-sm font-normal text-[#7A7A79]">({purchaseMaterials.length})</span>
-                  </CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Filter className="w-4 h-4 text-[#7A7A79]" />
-                    <select
-                      value={purchaseTypeFilter}
-                      onChange={(e) => setPurchaseTypeFilter(e.target.value)}
-                      className="h-8 rounded border border-[#DCDCDC] bg-white px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#384E84] focus:ring-opacity-20 focus:border-[#384E84]"
-                      data-testid="purchase-type-filter"
-                    >
-                      <option value="all">Все типы</option>
-                      {Object.entries(materialTypeLabels).map(([key, label]) => (
-                        <option key={key} value={key}>{label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0">
-                {purchaseMaterials.length === 0 ? (
-                  <div className="p-8 text-center text-[#7A7A79]">
-                    Материалов не найдено
-                  </div>
-                ) : (
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-y border-[#DCDCDC]">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-[#7A7A79] uppercase">Артикул</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-[#7A7A79] uppercase">Наименование</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-[#7A7A79] uppercase">Кол-во</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-[#7A7A79] uppercase">Оценка стоимости</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-[#7A7A79] uppercase">Поставщик и связь</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-[#7A7A79] uppercase w-24"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {purchaseMaterials.map((material) => (
-                      <tr key={material.id} className="border-b border-gray-100 hover:bg-gray-50" data-testid={`material-row-${material.id}`}>
-                        <td className="px-4 py-3 text-sm text-[#7A7A79] font-mono">
-                          {material.article || '—'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-[#212121]">{material.name}</div>
-                          {material.notes && (
-                            <div className="text-xs text-[#E26A2D]">{material.notes}</div>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-right text-sm text-[#212121]">
-                          {material.quantity_required || 1} {material.unit}
-                        </td>
-                        <td className="px-4 py-3 text-right font-medium text-[#212121]">
-                          {formatCurrency(material.price * (material.quantity_required || 1))}
-                        </td>
-                        <td className="px-4 py-3">
-                          {material.supplier ? (
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-full bg-[#384E84] text-white text-xs flex items-center justify-center font-medium">
-                                  {material.supplier.charAt(0)}
-                                </div>
-                                <span className="text-sm text-[#212121]">{material.supplier}</span>
-                              </div>
-                              <div className="flex items-center gap-2 mt-1 ml-8">
-                                <button className="p-1 text-[#7A7A79] hover:text-[#384E84]">
-                                  <Mail className="w-4 h-4" />
-                                </button>
-                                <button className="p-1 text-[#7A7A79] hover:text-[#384E84]">
-                                  <MessageSquare className="w-4 h-4" />
-                                </button>
-                                <button className="p-1 text-[#7A7A79] hover:text-[#384E84]">
-                                  <Send className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="text-sm text-[#7A7A79]">Не указан</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => openEditDialog(material)}
-                              className="h-8 w-8 p-0 text-[#7A7A79] hover:text-[#384E84]"
-                              data-testid={`edit-material-${material.id}`}
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => deleteMaterial(material.id)}
-                              className="h-8 w-8 p-0 text-[#7A7A79] hover:text-red-500"
-                              data-testid={`delete-material-${material.id}`}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                )}
-                <div className="p-4 border-t border-[#DCDCDC] flex items-center justify-between">
-                  <span className="text-sm text-[#7A7A79]">
-                    Показано {purchaseMaterials.length} из {purchaseMaterials.length} позиций под заказ
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => openCreateDialog('purchase')}
-                    className="text-[#384E84] gap-1"
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredMaterials.map((material) => (
+                  <TableRow
+                    key={material.id}
+                    data-testid={`material-row-${material.id}`}
+                    className="cursor-pointer border-b border-[#DCDCDC]"
+                    onClick={(e) => openEditDialog(material, e)}
                   >
-                    <Plus className="w-4 h-4" />
-                    Добавить позицию
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Empty state */}
-          {filteredMaterials.length === 0 && (
-            <Card className="border-[#DCDCDC]">
-              <CardContent className="p-12 text-center">
-                <Package className="w-12 h-12 mx-auto mb-4 text-[#DCDCDC]" />
-                <p className="text-[#7A7A79]">Материалов не найдено</p>
-                <Button 
-                  onClick={() => openCreateDialog()} 
-                  className="mt-4 bg-[#384E84] hover:bg-[#2d3e6a]"
-                >
-                  Добавить первый материал
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      )}
+                    <TableCell className="text-sm text-[#7A7A79] font-mono">
+                      {material.article || '—'}
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium text-[#212121]">{material.name}</div>
+                      {material.supplier && (
+                        <div className="text-xs text-[#7A7A79]">Поставщик: {material.supplier}</div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-[#212121]">
+                      {materialTypeLabels[material.type]}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={
+                        material.source === 'purchase' 
+                          ? 'bg-[#E26A2D] text-white border-[#E26A2D]' 
+                          : 'bg-[#384E84] text-white border-[#384E84]'
+                      }>
+                        {sourceLabels[material.source || 'warehouse']}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-right text-[#212121]">
+                      {formatCurrency(material.price)}/{material.unit}
+                    </TableCell>
+                    <TableCell className="text-sm text-right">
+                      <span className={`font-medium ${
+                        material.source === 'purchase' 
+                          ? 'text-[#212121]' 
+                          : (material.quantity_available || 0) > 0 ? 'text-green-600' : 'text-[#E26A2D]'
+                      }`}>
+                        {material.source === 'purchase' 
+                          ? `${material.quantity_required || 0} ${material.unit}`
+                          : `${material.quantity_available || 0} ${material.unit}`
+                        }
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => openEditDialog(material, e)}
+                          className="h-8 w-8 p-0 text-[#7A7A79] hover:text-[#384E84]"
+                          data-testid={`edit-material-${material.id}`}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => deleteMaterial(material.id, e)}
+                          className="h-8 w-8 p-0 text-[#7A7A79] hover:text-red-500"
+                          data-testid={`delete-material-${material.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
+      </Card>
 
       {/* Add/Edit Dialog */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
@@ -486,7 +326,7 @@ const Materials = () => {
               {editingMaterial ? 'Редактировать материал' : 'Новый материал'}
             </DialogTitle>
             <DialogDescription>
-              {editingMaterial ? 'Измените информацию о материале' : 'Добавьте новый материал'}
+              {editingMaterial ? 'Измените информацию о материале' : 'Добавьте новый материал в базу'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -540,7 +380,7 @@ const Materials = () => {
                 </Select>
               </div>
               <div>
-                <Label className="text-[#212121]">Единица</Label>
+                <Label className="text-[#212121]">Единица измерения</Label>
                 <Input
                   value={formData.unit}
                   onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
