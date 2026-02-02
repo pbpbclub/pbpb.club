@@ -144,7 +144,6 @@ const Orders = () => {
           <Table>
             <TableHeader>
               <TableRow className="border-b border-[#DCDCDC]">
-                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs w-12"></TableHead>
                 <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Название</TableHead>
                 <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Клиент</TableHead>
                 <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Статус</TableHead>
@@ -152,6 +151,7 @@ const Orders = () => {
                 <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Дедлайн</TableHead>
                 <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs text-right">Себестоимость</TableHead>
                 <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs text-right">Цена</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs text-right w-24"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -169,16 +169,6 @@ const Orders = () => {
                     className="cursor-pointer border-b border-[#DCDCDC]"
                     onClick={() => navigate(`/orders/${order.id}`)}
                   >
-                    <TableCell className="w-12">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => deleteOrder(order.id, e)}
-                        data-testid={`delete-order-${order.id}`}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </TableCell>
                     <TableCell className="font-medium text-[#212121]">{order.name}</TableCell>
                     <TableCell className="text-[#212121]">{order.client}</TableCell>
                     <TableCell>
@@ -197,6 +187,31 @@ const Orders = () => {
                     </TableCell>
                     <TableCell className="text-sm text-right font-semibold text-[#384E84]">
                       {formatCurrency(order.cash_price)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/orders/${order.id}`);
+                          }}
+                          className="h-8 w-8 p-0 text-[#7A7A79] hover:text-[#384E84]"
+                          data-testid={`edit-order-${order.id}`}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => deleteOrder(order.id, e)}
+                          className="h-8 w-8 p-0 text-[#7A7A79] hover:text-red-500"
+                          data-testid={`delete-order-${order.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
