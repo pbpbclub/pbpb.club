@@ -78,6 +78,13 @@ const OrderDetail = () => {
   const [editedOrder, setEditedOrder] = useState(null);
   const [editedStages, setEditedStages] = useState([]);
   
+  // Clients for dropdown
+  const [clients, setClients] = useState([]);
+  const [clientSearch, setClientSearch] = useState('');
+  const [showClientDropdown, setShowClientDropdown] = useState(false);
+  const [openNewClientDialog, setOpenNewClientDialog] = useState(false);
+  const [newClient, setNewClient] = useState({ name: '', phone: '', email: '' });
+  
   // Dialogs for adding new items
   const [openStageDialog, setOpenStageDialog] = useState(false);
   const [openCostDialog, setOpenCostDialog] = useState(false);
