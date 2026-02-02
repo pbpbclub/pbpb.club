@@ -970,14 +970,65 @@ const OrderDetail = () => {
               <CardTitle className="text-sm text-[#7A7A79] uppercase">Заказчик</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-[#384E84] text-white flex items-center justify-center font-medium">
-                  {displayClient?.charAt(0) || '?'}
+              {isEditMode ? (
+                <div className="space-y-3">
+                  <div className="relative">
+                    <Input
+                      value={clientSearch}
+                      onChange={(e) => {
+                        setClientSearch(e.target.value);
+                        setShowClientDropdown(true);
+                      }}
+                      onFocus={() => setShowClientDropdown(true)}
+                      placeholder="Поиск заказчика..."
+                      className="border-[#384E84]"
+                      data-testid="client-search-input"
+                    />
+                    {showClientDropdown && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-[#DCDCDC] rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                        {filteredClients.length > 0 ? (
+                          filteredClients.map(client => (
+                            <div
+                              key={client.id}
+                              className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => {
+                                setEditedOrder({ ...editedOrder, client: client.name });
+                                setClientSearch(client.name);
+                                setShowClientDropdown(false);
+                              }}
+                            >
+                              <div className="font-medium text-[#212121]">{client.name}</div>
+                              {client.phone && <div className="text-xs text-[#7A7A79]">{client.phone}</div>}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-3 py-2 text-[#7A7A79] text-sm">Не найдено</div>
+                        )}
+                        <div
+                          className="px-3 py-2 border-t border-[#DCDCDC] hover:bg-blue-50 cursor-pointer flex items-center gap-2 text-[#384E84]"
+                          onClick={() => {
+                            setOpenNewClientDialog(true);
+                            setShowClientDropdown(false);
+                            setNewClient({ ...newClient, name: clientSearch });
+                          }}
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Создать нового заказчика</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <div className="font-medium text-[#212121]">{displayClient}</div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#384E84] text-white flex items-center justify-center font-medium">
+                    {displayClient?.charAt(0) || '?'}
+                  </div>
+                  <div>
+                    <div className="font-medium text-[#212121]">{displayClient || '—'}</div>
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
 
