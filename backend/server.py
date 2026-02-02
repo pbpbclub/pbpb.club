@@ -341,6 +341,26 @@ async def update_order(order_id: str, order_update: OrderUpdate):
         raise HTTPException(status_code=404, detail="Order not found")
     
     update_data = {k: v for k, v in order_update.model_dump().items() if v is not None}
+    
+    # If stages are being updated, recalculate costs
+    if "stages" in update_data and update_data["stages"]:
+        stages = update_data["stages"]
+        # Recalculate total costs for each stage and overall
+        for stage in stages:
+            cost_items = stage.get("cost_items", [])
+            stage_total = sum(item.get("total", 0) for item in cost_items)
+            stage["total_cost"] = stage_total
+        
+        actual_cost = sum(s.get("total_cost", 0) for s in stages)
+        sale_price = actual_cost * 1.6
+        cash_price = sale_price
+        cashless_price = cash_price / 0.87 if cash_price > 0 else 0
+        
+        update_data["actual_cost"] = actual_cost
+        update_data["sale_price"] = sale_price
+        update_data["cash_price"] = cash_price
+        update_data["cashless_price"] = cashless_price
+    
     if update_data:
         await db.orders.update_one({"id": order_id}, {"$set": update_data})
         order.update(update_data)
