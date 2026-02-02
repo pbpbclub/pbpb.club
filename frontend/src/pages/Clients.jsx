@@ -195,7 +195,7 @@ const Clients = () => {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight mb-1 text-[#212121]">Заказчики</h1>
-          <p className="text-[#7A7A79]">Управление контрагентами и клиентами</p>
+          <p className="text-[#7A7A79]">Управление контрагентами и заказчиками</p>
         </div>
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild>
