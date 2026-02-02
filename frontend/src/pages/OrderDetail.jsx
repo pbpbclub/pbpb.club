@@ -63,6 +63,10 @@ const OrderDetail = () => {
     end_date: '',
     master: '',
     notes: '',
+    // Initial work item
+    work_name: '',
+    work_hours: 0,
+    work_rate: 500,
   });
   const [newCost, setNewCost] = useState({
     name: '',
