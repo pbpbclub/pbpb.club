@@ -5,6 +5,7 @@ import { Plus, Search, Trash2, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import {
   Table,
   TableBody,
@@ -14,6 +15,20 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Breadcrumbs from '@/components/Breadcrumbs';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -43,6 +58,15 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [editDialog, setEditDialog] = useState(false);
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    client: '',
+    status: 'draft',
+    planned_completion_date: '',
+    notes: '',
+  });
 
   useEffect(() => {
     fetchOrders();
@@ -59,6 +83,29 @@ const Orders = () => {
       console.error('Error fetching orders:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openEditDialog = (order, e) => {
+    e.stopPropagation();
+    setEditingOrder(order);
+    setFormData({
+      name: order.name,
+      client: order.client,
+      status: order.status,
+      planned_completion_date: order.planned_completion_date || '',
+      notes: order.notes || '',
+    });
+    setEditDialog(true);
+  };
+
+  const saveOrder = async () => {
+    try {
+      await axios.put(`${API}/orders/${editingOrder.id}`, formData);
+      setEditDialog(false);
+      fetchOrders();
+    } catch (error) {
+      console.error('Error saving order:', error);
     }
   };
 
@@ -193,10 +240,7 @@ const Orders = () => {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/orders/${order.id}`);
-                          }}
+                          onClick={(e) => openEditDialog(order, e)}
                           className="h-8 w-8 p-0 text-[#7A7A79] hover:text-[#384E84]"
                           data-testid={`edit-order-${order.id}`}
                         >
@@ -220,6 +264,76 @@ const Orders = () => {
           </Table>
         )}
       </Card>
+
+      {/* Edit Order Dialog */}
+      <Dialog open={editDialog} onOpenChange={setEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-[#212121]">Редактировать заказ</DialogTitle>
+            <DialogDescription>
+              Измените информацию о заказе
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label className="text-[#212121]">Название</Label>
+              <Input
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="border-[#DCDCDC]"
+                data-testid="edit-order-name-input"
+              />
+            </div>
+            <div>
+              <Label className="text-[#212121]">Клиент</Label>
+              <Input
+                value={formData.client}
+                onChange={(e) => setFormData({ ...formData, client: e.target.value })}
+                className="border-[#DCDCDC]"
+                data-testid="edit-order-client-input"
+              />
+            </div>
+            <div>
+              <Label className="text-[#212121]">Статус</Label>
+              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+                <SelectTrigger className="border-[#DCDCDC]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(statusLabels).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-[#212121]">Дедлайн</Label>
+              <Input
+                type="date"
+                value={formData.planned_completion_date}
+                onChange={(e) => setFormData({ ...formData, planned_completion_date: e.target.value })}
+                className="border-[#DCDCDC]"
+              />
+            </div>
+            <div>
+              <Label className="text-[#212121]">Примечания</Label>
+              <Input
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                className="border-[#DCDCDC]"
+              />
+            </div>
+            <Button 
+              onClick={saveOrder} 
+              className="w-full bg-[#384E84] hover:bg-[#2d3e6a]"
+              disabled={!formData.name}
+              data-testid="save-order-btn"
+            >
+              Сохранить
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
