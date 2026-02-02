@@ -220,10 +220,12 @@ async def create_material(material: MaterialCreate):
     return material_obj
 
 @api_router.get("/materials", response_model=List[Material])
-async def get_materials(type: Optional[MaterialType] = None):
+async def get_materials(type: Optional[MaterialType] = None, source: Optional[MaterialSource] = None):
     query = {}
     if type:
         query["type"] = type
+    if source:
+        query["source"] = source
     materials = await db.materials.find(query, {"_id": 0}).to_list(1000)
     return materials
 
