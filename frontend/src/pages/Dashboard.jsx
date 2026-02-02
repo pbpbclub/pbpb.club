@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const StatCard = ({ title, value, icon: Icon, trend, color = 'gray' }) => {
+const StatCard = ({ title, value, icon: Icon, trend, color = 'gray', onClick }) => {
   const colorClasses = {
     gray: 'from-[#7A7A79] to-[#5A5A59]',
     blue: 'from-[#384E84] to-[#2A3B64]',
@@ -15,14 +15,17 @@ const StatCard = ({ title, value, icon: Icon, trend, color = 'gray' }) => {
   };
 
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-200 border-gray-300">
+    <Card 
+      className={`hover:shadow-lg transition-all duration-200 border-[#DCDCDC] ${onClick ? 'cursor-pointer hover:border-[#384E84]' : ''}`}
+      onClick={onClick}
+    >
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <p className="text-xs text-gray-900 uppercase tracking-wider mb-2">
+            <p className="text-xs text-[#7A7A79] uppercase tracking-wider mb-2">
               {title}
             </p>
-            <h3 className="text-3xl font-bold text-gray-900">{value}</h3>
+            <h3 className="text-3xl font-bold text-[#212121]">{value}</h3>
             {trend && (
               <p className="text-sm text-[#384E84] mt-2 flex items-center gap-1">
                 <TrendingUp className="w-4 h-4" />
