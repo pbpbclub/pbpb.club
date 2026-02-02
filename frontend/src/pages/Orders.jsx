@@ -192,7 +192,7 @@ const Orders = () => {
             <TableHeader>
               <TableRow className="border-b border-[#DCDCDC]">
                 <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Название</TableHead>
-                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Клиент</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Заказчик</TableHead>
                 <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Статус</TableHead>
                 <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Дата заказа</TableHead>
                 <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Дедлайн</TableHead>
