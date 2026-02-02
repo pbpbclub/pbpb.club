@@ -6,6 +6,7 @@ import Dashboard from '@/pages/Dashboard';
 import Orders from '@/pages/Orders';
 import OrderDetail from '@/pages/OrderDetail';
 import CreateOrder from '@/pages/CreateOrder';
+import CreateEstimate from '@/pages/CreateEstimate';
 import Production from '@/pages/Production';
 import Calendar from '@/pages/Calendar';
 import Materials from '@/pages/Materials';
@@ -23,6 +24,7 @@ function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/orders/new" element={<CreateOrder />} />
             <Route path="/orders/:orderId" element={<OrderDetail />} />
+            <Route path="/orders/:orderId/estimate" element={<CreateEstimate />} />
             <Route path="/production" element={<Production />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/clients/:clientId" element={<ClientDetail />} />
