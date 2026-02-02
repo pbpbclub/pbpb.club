@@ -92,6 +92,8 @@ const Orders = () => {
 
   return (
     <div className="p-8">
+      <Breadcrumbs items={[{ label: 'Заказы' }]} />
+      
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight mb-1 text-[#212121]">Заказы</h1>
