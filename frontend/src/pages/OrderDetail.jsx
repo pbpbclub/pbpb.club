@@ -971,28 +971,57 @@ const OrderDetail = () => {
             <Card className="border-[#DCDCDC]">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg text-[#212121]">Файлы</CardTitle>
-                <Button size="sm" variant="outline" className="gap-2">
-                  <Upload className="w-4 h-4" />
-                  Загрузить
-                </Button>
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                    disabled={uploadingFile}
+                  />
+                  <Button size="sm" variant="outline" className="gap-2" asChild disabled={uploadingFile}>
+                    <span>
+                      <Upload className="w-4 h-4" />
+                      {uploadingFile ? 'Загрузка...' : 'Загрузить'}
+                    </span>
+                  </Button>
+                </label>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {files.map(file => (
-                    <div key={file.id} className="flex items-center justify-between p-3 border border-[#DCDCDC] rounded hover:bg-gray-50">
-                      <div className="flex items-center gap-3">
-                        <File className="w-8 h-8 text-[#384E84]" />
-                        <div>
-                          <div className="font-medium text-[#212121]">{file.name}</div>
-                          <div className="text-xs text-[#7A7A79]">{file.date}</div>
+                {files.length > 0 ? (
+                  <div className="space-y-2">
+                    {files.map(file => (
+                      <div key={file.id} className="flex items-center justify-between p-3 border border-[#DCDCDC] rounded hover:bg-gray-50">
+                        <div className="flex items-center gap-3">
+                          <File className="w-8 h-8 text-[#384E84]" />
+                          <div>
+                            <div className="font-medium text-[#212121]">{file.name}</div>
+                            <div className="text-xs text-[#7A7A79]">
+                              {formatDate(file.uploaded_at)} • {(file.size / 1024).toFixed(1)} KB
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {file.url && (
+                            <Button size="sm" variant="ghost" asChild>
+                              <a href={file.url} download={file.name} target="_blank" rel="noopener noreferrer">
+                                <Download className="w-4 h-4" />
+                              </a>
+                            </Button>
+                          )}
+                          <Button size="sm" variant="ghost" onClick={() => handleDeleteFile(file.id)}>
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
                         </div>
                       </div>
-                      <Button size="sm" variant="ghost">
-                        <Download className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-[#7A7A79]">
+                    <File className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p>Файлы не загружены</p>
+                    <p className="text-sm">Нажмите "Загрузить" чтобы добавить файл</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
@@ -1003,19 +1032,28 @@ const OrderDetail = () => {
                 <CardTitle className="text-lg text-[#212121]">История событий</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {events.map(event => (
-                    <div key={event.id} className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[#384E84] text-white flex items-center justify-center text-xs flex-shrink-0">
-                        {event.user.charAt(0)}
+                {events.length > 0 ? (
+                  <div className="space-y-4">
+                    {events.map(event => (
+                      <div key={event.id} className="flex gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#384E84] text-white flex items-center justify-center text-xs flex-shrink-0">
+                          {event.user?.charAt(0) || 'С'}
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-[#212121]">{event.message}</div>
+                          <div className="text-xs text-[#7A7A79]">
+                            {formatDate(event.created_at)} {new Date(event.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })} • {event.user}
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <div className="text-[#212121]">{event.message}</div>
-                        <div className="text-xs text-[#7A7A79]">{event.date} • {event.user}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-[#7A7A79]">
+                    <Clock className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p>События не записаны</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
