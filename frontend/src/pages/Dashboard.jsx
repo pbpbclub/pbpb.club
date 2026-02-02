@@ -119,30 +119,42 @@ const Dashboard = () => {
         </div>
       )}
 
-      <Card className="mt-8 border-gray-300 shadow-sm">
+      <Card className="mt-8 border-[#DCDCDC] shadow-sm">
         <CardHeader>
-          <CardTitle>Быстрый старт</CardTitle>
+          <CardTitle className="text-[#212121]">Быстрый старт</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <p className="text-sm text-gray-900">
+            <p className="text-sm text-[#7A7A79]">
               Добро пожаловать в систему управления производством Factory Hub.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 border-2 border-gray-300 rounded hover:bg-gray-100 hover:border-[#384E84] hover:shadow-md transition-all cursor-pointer">
+              <div 
+                className="p-4 border-2 border-[#DCDCDC] rounded hover:bg-gray-50 hover:border-[#384E84] hover:shadow-md transition-all cursor-pointer"
+                onClick={() => navigate('/orders/new')}
+                data-testid="quick-create-order"
+              >
                 <Package className="w-8 h-8 mb-2 text-[#384E84]" />
-                <h3 className="font-semibold mb-1">Создать заказ</h3>
-                <p className="text-sm text-gray-900">Добавьте новый заказ в систему</p>
+                <h3 className="font-semibold mb-1 text-[#212121]">Создать заказ</h3>
+                <p className="text-sm text-[#7A7A79]">Добавьте новый заказ в систему</p>
               </div>
-              <div className="p-4 border-2 border-gray-300 rounded hover:bg-gray-100 hover:border-[#384E84] hover:shadow-md transition-all cursor-pointer">
+              <div 
+                className="p-4 border-2 border-[#DCDCDC] rounded hover:bg-gray-50 hover:border-[#384E84] hover:shadow-md transition-all cursor-pointer"
+                onClick={() => navigate('/materials')}
+                data-testid="quick-materials"
+              >
                 <Database className="w-8 h-8 mb-2 text-[#384E84]" />
-                <h3 className="font-semibold mb-1">Материалы</h3>
-                <p className="text-sm text-gray-900">Управление базой материалов</p>
+                <h3 className="font-semibold mb-1 text-[#212121]">Материалы</h3>
+                <p className="text-sm text-[#7A7A79]">Управление базой материалов</p>
               </div>
-              <div className="p-4 border-2 border-gray-300 rounded hover:bg-gray-100 hover:border-[#384E84] hover:shadow-md transition-all cursor-pointer">
+              <div 
+                className="p-4 border-2 border-[#DCDCDC] rounded hover:bg-gray-50 hover:border-[#384E84] hover:shadow-md transition-all cursor-pointer"
+                onClick={() => navigate('/calendar')}
+                data-testid="quick-calendar"
+              >
                 <Calendar className="w-8 h-8 mb-2 text-[#384E84]" />
-                <h3 className="font-semibold mb-1">Календарь</h3>
-                <p className="text-sm text-gray-900">Планирование производства</p>
+                <h3 className="font-semibold mb-1 text-[#212121]">Календарь</h3>
+                <p className="text-sm text-[#7A7A79]">Планирование производства</p>
               </div>
             </div>
           </div>
