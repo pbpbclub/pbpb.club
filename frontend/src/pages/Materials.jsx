@@ -369,7 +369,7 @@ const Materials = () => {
                       <th className="px-4 py-3 text-right text-xs font-medium text-[#7A7A79] uppercase">Кол-во</th>
                       <th className="px-4 py-3 text-right text-xs font-medium text-[#7A7A79] uppercase">Оценка стоимости</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-[#7A7A79] uppercase">Поставщик и связь</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-[#7A7A79] uppercase w-12"></th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-[#7A7A79] uppercase w-24"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -415,15 +415,27 @@ const Materials = () => {
                             <span className="text-sm text-[#7A7A79]">Не указан</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-center">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => deleteMaterial(material.id)}
-                            data-testid={`delete-material-${material.id}`}
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                          </Button>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => openEditDialog(material)}
+                              className="h-8 w-8 p-0 text-[#7A7A79] hover:text-[#384E84]"
+                              data-testid={`edit-material-${material.id}`}
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => deleteMaterial(material.id)}
+                              className="h-8 w-8 p-0 text-[#7A7A79] hover:text-red-500"
+                              data-testid={`delete-material-${material.id}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))}
