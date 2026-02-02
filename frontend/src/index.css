@@ -51,32 +51,108 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Inter', sans-serif;
+    color: var(--fh-black);
   }
   .font-mono {
     font-family: 'Inter', sans-serif;
   }
   
+  /* Focus states - using Factory Hub primary blue */
   input:focus, 
   select:focus, 
   textarea:focus,
   button:focus {
     outline: none !important;
-    box-shadow: 0 0 0 2px rgba(56, 78, 132, 0.2) !important;
+    box-shadow: 0 0 0 2px rgba(56, 78, 132, 0.15) !important;
+    border-color: var(--fh-primary) !important;
   }
   
+  /* Autofill - clean white background */
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,
   input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 30px white inset !important;
-    -webkit-text-fill-color: #212121 !important;
+    -webkit-text-fill-color: var(--fh-black) !important;
   }
   
+  /* Table rows - clean hover */
   table tbody tr {
-    background-color: white;
+    background-color: var(--fh-white);
   }
   
   table tbody tr:hover {
-    background-color: #e5e7eb !important;
+    background-color: #F3F4F6 !important;
+  }
+}
+
+/* Factory Hub utility classes */
+@layer utilities {
+  .fh-card {
+    @apply bg-white border border-[#DCDCDC] rounded shadow-sm;
+  }
+  
+  .fh-text-primary {
+    color: var(--fh-primary);
+  }
+  
+  .fh-text-accent {
+    color: var(--fh-accent);
+  }
+  
+  .fh-text-muted {
+    color: var(--fh-gray);
+  }
+  
+  .fh-bg-primary {
+    background-color: var(--fh-primary);
+  }
+  
+  .fh-bg-accent {
+    background-color: var(--fh-accent);
+  }
+  
+  .fh-border {
+    border-color: var(--fh-gray-border);
+  }
+  
+  /* Stepper progress bar */
+  .fh-stepper-line {
+    height: 4px;
+    background-color: #E5E7EB;
+    border-radius: 2px;
+  }
+  
+  .fh-stepper-line-active {
+    background-color: var(--fh-primary);
+  }
+  
+  /* Production stage card */
+  .fh-stage-card {
+    @apply bg-white border border-[#DCDCDC] rounded-lg p-4;
+    transition: box-shadow 0.2s ease;
+  }
+  
+  .fh-stage-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Financial summary */
+  .fh-summary-value {
+    @apply text-2xl font-bold;
+    color: var(--fh-black);
+  }
+  
+  .fh-summary-label {
+    @apply text-xs uppercase tracking-wider;
+    color: var(--fh-gray);
+  }
+  
+  .fh-margin-positive {
+    color: var(--fh-success);
+  }
+  
+  .fh-margin-negative {
+    color: var(--fh-accent);
   }
 }
