@@ -5,6 +5,7 @@ import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import {
   Table,
   TableBody,
@@ -21,7 +22,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import Breadcrumbs from '@/components/Breadcrumbs';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -33,7 +33,9 @@ const Clients = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
-  const [newClient, setNewClient] = useState({
+  const [editDialog, setEditDialog] = useState(false);
+  const [editingClient, setEditingClient] = useState(null);
+  const [formData, setFormData] = useState({
     name: '',
     inn: '',
     contact_person: '',
@@ -58,18 +60,48 @@ const Clients = () => {
     }
   };
 
+  const openCreateDialog = () => {
+    setFormData({ name: '', inn: '', contact_person: '', phone: '', email: '', notes: '' });
+    setOpenDialog(true);
+  };
+
+  const openEditClientDialog = (client, e) => {
+    e.stopPropagation();
+    setEditingClient(client);
+    setFormData({
+      name: client.name,
+      inn: client.inn || '',
+      contact_person: client.contact_person || '',
+      phone: client.phone || '',
+      email: client.email || '',
+      notes: client.notes || '',
+    });
+    setEditDialog(true);
+  };
+
   const createClient = async () => {
     try {
-      await axios.post(`${API}/clients`, newClient);
+      await axios.post(`${API}/clients`, formData);
       setOpenDialog(false);
-      setNewClient({ name: '', inn: '', contact_person: '', phone: '', email: '', notes: '' });
+      setFormData({ name: '', inn: '', contact_person: '', phone: '', email: '', notes: '' });
       fetchClients();
     } catch (error) {
       console.error('Error creating client:', error);
     }
   };
 
-  const deleteClient = async (id) => {
+  const saveClient = async () => {
+    try {
+      await axios.put(`${API}/clients/${editingClient.id}`, formData);
+      setEditDialog(false);
+      fetchClients();
+    } catch (error) {
+      console.error('Error saving client:', error);
+    }
+  };
+
+  const deleteClient = async (id, e) => {
+    e.stopPropagation();
     if (!window.confirm('Удалить заказчика?')) return;
     try {
       await axios.delete(`${API}/clients/${id}`);
@@ -93,6 +125,69 @@ const Clients = () => {
     }
   };
 
+  const ClientFormFields = () => (
+    <>
+      <div>
+        <Label className="text-[#212121]">Название компании</Label>
+        <Input
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          placeholder="ООО Компания"
+          className="border-[#DCDCDC]"
+          data-testid="client-name-input"
+        />
+      </div>
+      <div>
+        <Label className="text-[#212121]">ИНН</Label>
+        <Input
+          value={formData.inn}
+          onChange={(e) => setFormData({ ...formData, inn: e.target.value })}
+          placeholder="1234567890"
+          className="border-[#DCDCDC]"
+        />
+      </div>
+      <div>
+        <Label className="text-[#212121]">Контактное лицо</Label>
+        <Input
+          value={formData.contact_person}
+          onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })}
+          placeholder="Иван Иванов"
+          className="border-[#DCDCDC]"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label className="text-[#212121]">Телефон</Label>
+          <Input
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            placeholder="+7 (999) 123-45-67"
+            className="border-[#DCDCDC]"
+          />
+        </div>
+        <div>
+          <Label className="text-[#212121]">Email</Label>
+          <Input
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            placeholder="email@example.com"
+            className="border-[#DCDCDC]"
+          />
+        </div>
+      </div>
+      <div>
+        <Label className="text-[#212121]">Примечания</Label>
+        <Input
+          value={formData.notes}
+          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+          placeholder="Дополнительная информация"
+          className="border-[#DCDCDC]"
+        />
+      </div>
+    </>
+  );
+
   return (
     <div className="p-8">
       <Breadcrumbs items={[{ label: 'Заказчики' }]} />
@@ -104,82 +199,29 @@ const Clients = () => {
         </div>
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild>
-            <Button data-testid="create-client-btn" className="gap-2 bg-[#384E84] hover:bg-[#2d3e6a]">
+            <Button 
+              data-testid="create-client-btn" 
+              className="gap-2 bg-[#384E84] hover:bg-[#2d3e6a]"
+              onClick={openCreateDialog}
+            >
               <Plus className="w-4 h-4" />
               Добавить заказчика
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Новый заказчик</DialogTitle>
+              <DialogTitle className="text-[#212121]">Новый заказчик</DialogTitle>
               <DialogDescription>
-                Добавьте нового заказчика в систему
+                Добавьте информацию о новом заказчике
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <div>
-                <Label htmlFor="name">Название контрагента</Label>
-                <Input
-                  id="name"
-                  data-testid="client-name-input"
-                  value={newClient.name}
-                  onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
-                  placeholder="ООО Компания"
-                />
-              </div>
-              <div>
-                <Label htmlFor="inn">ИНН</Label>
-                <Input
-                  id="inn"
-                  value={newClient.inn}
-                  onChange={(e) => setNewClient({ ...newClient, inn: e.target.value })}
-                  placeholder="1234567890"
-                />
-              </div>
-              <div>
-                <Label htmlFor="contact">Контактное лицо</Label>
-                <Input
-                  id="contact"
-                  value={newClient.contact_person}
-                  onChange={(e) => setNewClient({ ...newClient, contact_person: e.target.value })}
-                  placeholder="Иван Иванов"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="phone">Телефон</Label>
-                  <Input
-                    id="phone"
-                    value={newClient.phone}
-                    onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
-                    placeholder="+7 (999) 123-45-67"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={newClient.email}
-                    onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
-                    placeholder="email@example.com"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="notes">Примечания</Label>
-                <Input
-                  id="notes"
-                  value={newClient.notes}
-                  onChange={(e) => setNewClient({ ...newClient, notes: e.target.value })}
-                  placeholder="Дополнительная информация"
-                />
-              </div>
+              <ClientFormFields />
               <Button
                 data-testid="submit-client-btn"
                 onClick={createClient}
-                className="w-full"
-                disabled={!newClient.name}
+                className="w-full bg-[#384E84] hover:bg-[#2d3e6a]"
+                disabled={!formData.name}
               >
                 Создать
               </Button>
@@ -247,10 +289,7 @@ const Clients = () => {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/clients/${client.id}`);
-                          }}
+                          onClick={(e) => openEditClientDialog(client, e)}
                           className="h-8 w-8 p-0 text-[#7A7A79] hover:text-[#384E84]"
                           data-testid={`edit-client-${client.id}`}
                         >
@@ -259,10 +298,7 @@ const Clients = () => {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteClient(client.id);
-                          }}
+                          onClick={(e) => deleteClient(client.id, e)}
                           className="h-8 w-8 p-0 text-[#7A7A79] hover:text-red-500"
                           data-testid={`delete-client-${client.id}`}
                         >
@@ -277,6 +313,29 @@ const Clients = () => {
           </Table>
         )}
       </Card>
+
+      {/* Edit Client Dialog */}
+      <Dialog open={editDialog} onOpenChange={setEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-[#212121]">Редактировать заказчика</DialogTitle>
+            <DialogDescription>
+              Измените информацию о заказчике
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <ClientFormFields />
+            <Button
+              onClick={saveClient}
+              className="w-full bg-[#384E84] hover:bg-[#2d3e6a]"
+              disabled={!formData.name}
+              data-testid="save-client-btn"
+            >
+              Сохранить
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
