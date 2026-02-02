@@ -95,9 +95,11 @@ const Calendar = () => {
 
   return (
     <div className="p-8">
+      <Breadcrumbs items={[{ label: 'Календарь' }]} />
+      
       <div className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">Производственный календарь</h1>
-        <p className="text-gray-900">Планирование этапов и контроль загрузки</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-1 text-[#212121]">Производственный календарь</h1>
+        <p className="text-[#7A7A79]">Планирование этапов и контроль загрузки</p>
       </div>
 
       <Card className="p-6 border-gray-300 shadow-sm">
