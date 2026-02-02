@@ -463,9 +463,9 @@ const CreateOrder = () => {
                   ) : (
                     <div className="px-4 py-3 text-[#7A7A79] text-center">
                       {clientSearch ? (
-                        <span>Клиент не найден. Имя будет использовано: <strong className="text-[#212121]">{clientSearch}</strong></span>
+                        <span>Заказчик не найден. Имя будет использовано: <strong className="text-[#212121]">{clientSearch}</strong></span>
                       ) : (
-                        <span>Начните вводить имя клиента</span>
+                        <span>Начните вводить имя заказчика</span>
                       )}
                     </div>
                   )}
