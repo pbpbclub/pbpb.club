@@ -78,9 +78,11 @@ const Dashboard = () => {
 
   return (
     <div className="p-8">
+      <Breadcrumbs items={[{ label: 'Главная' }]} />
+      
       <div className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">Панель управления</h1>
-        <p className="text-gray-900">Обзор производства и заказов</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-1 text-[#212121]">Панель управления</h1>
+        <p className="text-[#7A7A79]">Обзор производства и заказов</p>
       </div>
 
       {loading ? (
