@@ -43,6 +43,7 @@ const StatCard = ({ title, value, icon: Icon, trend, color = 'gray', onClick }) 
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     total_orders: 0,
     active_orders: 0,
