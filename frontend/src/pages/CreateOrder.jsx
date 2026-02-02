@@ -427,32 +427,48 @@ const CreateOrder = () => {
             <div className="relative">
               <Label className="text-[#212121]">Заказчик *</Label>
               <div className="relative mt-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7A7A79]" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7A7A79] z-10" />
                 <Input
                   value={clientSearch}
                   onChange={(e) => {
                     setClientSearch(e.target.value);
                     setShowClientDropdown(true);
+                    // Also update clientName for manual entry
+                    setOrderData(prev => ({ ...prev, clientName: e.target.value }));
                   }}
                   onFocus={() => setShowClientDropdown(true)}
-                  placeholder="Найти заказчика по названию или ИНН..."
-                  className="pl-10"
+                  onBlur={() => {
+                    // Delay hiding to allow click on dropdown
+                    setTimeout(() => setShowClientDropdown(false), 200);
+                  }}
+                  placeholder="Найти заказчика или ввести вручную..."
+                  className="pl-10 border-[#DCDCDC]"
                   data-testid="client-search-input"
                 />
               </div>
-              {showClientDropdown && filteredClients.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-[#DCDCDC] rounded shadow-lg max-h-60 overflow-auto">
-                  {filteredClients.map(client => (
-                    <div
-                      key={client.id}
-                      className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0"
-                      onClick={() => selectClient(client)}
-                      data-testid={`client-option-${client.id}`}
-                    >
-                      <div className="font-medium text-[#212121]">{client.name}</div>
-                      {client.inn && <div className="text-sm text-[#7A7A79]">ИНН: {client.inn}</div>}
+              {showClientDropdown && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-[#DCDCDC] rounded-lg shadow-lg max-h-60 overflow-auto">
+                  {filteredClients.length > 0 ? (
+                    filteredClients.map(client => (
+                      <div
+                        key={client.id}
+                        className="px-4 py-3 hover:bg-[#F3F4F6] cursor-pointer border-b border-gray-100 last:border-0"
+                        onMouseDown={() => selectClient(client)}
+                        data-testid={`client-option-${client.id}`}
+                      >
+                        <div className="font-medium text-[#212121]">{client.name}</div>
+                        {client.inn && <div className="text-sm text-[#7A7A79]">ИНН: {client.inn}</div>}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-4 py-3 text-[#7A7A79] text-center">
+                      {clientSearch ? (
+                        <span>Клиент не найден. Имя будет использовано: <strong className="text-[#212121]">{clientSearch}</strong></span>
+                      ) : (
+                        <span>Начните вводить имя клиента</span>
+                      )}
                     </div>
-                  ))}
+                  )}
                 </div>
               )}
             </div>
