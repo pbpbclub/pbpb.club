@@ -514,11 +514,19 @@ const OrderDetail = () => {
 
       {/* Financial Summary Cards */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <Card className="border-[#DCDCDC]">
+        <Card 
+          className="border-[#DCDCDC] cursor-pointer hover:border-[#384E84] hover:shadow-md transition-all"
+          onClick={() => navigate(`/orders/${orderId}/estimate`)}
+          data-testid="estimate-card"
+        >
           <CardContent className="p-4">
             <div className="text-xs text-[#7A7A79] uppercase mb-1">Смета</div>
             <div className="text-2xl font-bold text-[#212121]">{formatCurrency(order.cash_price)}</div>
             <div className="text-xs text-[#7A7A79] mt-1">Цена для заказчика</div>
+            <div className="text-xs text-[#384E84] mt-2 flex items-center gap-1">
+              <Edit2 className="w-3 h-3" />
+              Создать/редактировать
+            </div>
           </CardContent>
         </Card>
         <Card className="border-[#DCDCDC]">
