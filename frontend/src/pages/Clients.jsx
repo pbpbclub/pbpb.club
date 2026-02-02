@@ -95,14 +95,16 @@ const Clients = () => {
 
   return (
     <div className="p-8">
+      <Breadcrumbs items={[{ label: 'Заказчики' }]} />
+      
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">Заказчики</h1>
-          <p className="text-gray-900">Управление контрагентами и клиентами</p>
+          <h1 className="text-3xl font-bold tracking-tight mb-1 text-[#212121]">Заказчики</h1>
+          <p className="text-[#7A7A79]">Управление контрагентами и клиентами</p>
         </div>
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild>
-            <Button data-testid="create-client-btn" className="gap-2">
+            <Button data-testid="create-client-btn" className="gap-2 bg-[#384E84] hover:bg-[#2d3e6a]">
               <Plus className="w-4 h-4" />
               Добавить заказчика
             </Button>
