@@ -441,6 +441,7 @@ const Materials = () => {
                     ))}
                   </tbody>
                 </table>
+                )}
                 <div className="p-4 border-t border-[#DCDCDC] flex items-center justify-between">
                   <span className="text-sm text-[#7A7A79]">
                     Показано {purchaseMaterials.length} из {purchaseMaterials.length} позиций под заказ
