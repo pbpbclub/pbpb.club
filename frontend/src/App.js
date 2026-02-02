@@ -5,6 +5,7 @@ import Layout from '@/components/Layout';
 import Dashboard from '@/pages/Dashboard';
 import Orders from '@/pages/Orders';
 import OrderDetail from '@/pages/OrderDetail';
+import CreateOrder from '@/pages/CreateOrder';
 import Calendar from '@/pages/Calendar';
 import Materials from '@/pages/Materials';
 import Clients from '@/pages/Clients';
@@ -19,12 +20,13 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/orders/new" element={<CreateOrder />} />
             <Route path="/orders/:orderId" element={<OrderDetail />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/clients/:clientId" element={<ClientDetail />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/materials" element={<Materials />} />
-            <Route path="/settings" element={<div className="p-8"><h1 className="text-4xl font-bold">Настройки</h1></div>} />
+            <Route path="/settings" element={<div className="p-8"><h1 className="text-4xl font-bold text-[#212121]">Настройки</h1></div>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Layout>
