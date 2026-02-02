@@ -164,12 +164,10 @@ const OrderDetail = () => {
 
   return (
     <div className="p-8">
-      {/* Breadcrumbs */}
-      <div className="text-sm text-[#7A7A79] mb-4">
-        <span className="cursor-pointer hover:text-[#384E84]" onClick={() => navigate('/orders')}>Заказы</span>
-        {' / '}
-        <span className="text-[#212121]">{order.name}</span>
-      </div>
+      <Breadcrumbs items={[
+        { label: 'Заказы', href: '/orders' },
+        { label: order.name }
+      ]} />
 
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
