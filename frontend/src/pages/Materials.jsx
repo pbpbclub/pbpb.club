@@ -304,17 +304,19 @@ const Materials = () => {
                               size="sm"
                               variant="ghost"
                               onClick={() => openEditDialog(material)}
-                              className="text-[#384E84] hover:text-[#2d3e6a]"
+                              className="h-8 w-8 p-0 text-[#7A7A79] hover:text-[#384E84]"
+                              data-testid={`edit-material-${material.id}`}
                             >
-                              Изменить
+                              <Edit2 className="w-4 h-4" />
                             </Button>
                             <Button
                               size="sm"
                               variant="ghost"
                               onClick={() => deleteMaterial(material.id)}
+                              className="h-8 w-8 p-0 text-[#7A7A79] hover:text-red-500"
                               data-testid={`delete-material-${material.id}`}
                             >
-                              <Trash2 className="w-4 h-4 text-red-500" />
+                              <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </td>
@@ -322,20 +324,43 @@ const Materials = () => {
                     ))}
                   </tbody>
                 </table>
+                )}
               </CardContent>
             </Card>
           )}
 
           {/* Purchase Section */}
-          {(activeTab === 'all' || activeTab === 'purchase') && purchaseMaterials.length > 0 && (
+          {(activeTab === 'all' || activeTab === 'purchase') && (
             <Card className="border-[#DCDCDC]">
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg text-[#212121]">
-                  <ShoppingCart className="w-5 h-5 text-[#E26A2D]" />
-                  Под заказ (Закупка)
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-lg text-[#212121]">
+                    <ShoppingCart className="w-5 h-5 text-[#E26A2D]" />
+                    Под заказ (Закупка)
+                    <span className="text-sm font-normal text-[#7A7A79]">({purchaseMaterials.length})</span>
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-4 h-4 text-[#7A7A79]" />
+                    <select
+                      value={purchaseTypeFilter}
+                      onChange={(e) => setPurchaseTypeFilter(e.target.value)}
+                      className="h-8 rounded border border-[#DCDCDC] bg-white px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#384E84] focus:ring-opacity-20 focus:border-[#384E84]"
+                      data-testid="purchase-type-filter"
+                    >
+                      <option value="all">Все типы</option>
+                      {Object.entries(materialTypeLabels).map(([key, label]) => (
+                        <option key={key} value={key}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="p-0">
+                {purchaseMaterials.length === 0 ? (
+                  <div className="p-8 text-center text-[#7A7A79]">
+                    Материалов не найдено
+                  </div>
+                ) : (
                 <table className="w-full">
                   <thead className="bg-gray-50 border-y border-[#DCDCDC]">
                     <tr>
