@@ -84,7 +84,7 @@ const Dashboard = () => {
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#384E84]"></div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -93,24 +93,28 @@ const Dashboard = () => {
             value={stats.total_orders}
             icon={Package}
             color="gray"
+            onClick={() => navigate('/orders')}
           />
           <StatCard
             title="В работе"
             value={stats.active_orders}
             icon={Clock}
             color="blue"
+            onClick={() => navigate('/orders?status=production')}
           />
           <StatCard
             title="Выполнено"
             value={stats.completed_orders}
             icon={CheckCircle}
             color="gray"
+            onClick={() => navigate('/orders?status=completed')}
           />
           <StatCard
             title="Выручка"
             value={formatCurrency(stats.total_revenue)}
             icon={TrendingUp}
             color="black"
+            onClick={() => navigate('/orders')}
           />
         </div>
       )}
