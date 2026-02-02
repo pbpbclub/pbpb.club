@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Plus, Search, Trash2, Package, ShoppingCart, Mail, MessageSquare, Send } from 'lucide-react';
+import { Plus, Search, Trash2, Package, ShoppingCart, Mail, MessageSquare, Send, Edit2, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,6 +40,11 @@ const Materials = () => {
   const [activeTab, setActiveTab] = useState('all'); // all, warehouse, purchase
   const [openDialog, setOpenDialog] = useState(false);
   const [editingMaterial, setEditingMaterial] = useState(null);
+  
+  // Filters for each section
+  const [warehouseTypeFilter, setWarehouseTypeFilter] = useState('all');
+  const [purchaseTypeFilter, setPurchaseTypeFilter] = useState('all');
+  
   const [formData, setFormData] = useState({
     name: '',
     type: 'metal',
