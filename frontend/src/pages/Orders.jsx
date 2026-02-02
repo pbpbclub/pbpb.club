@@ -162,7 +162,7 @@ const Orders = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#7A7A79]" />
             <Input
               data-testid="search-orders-input"
-              placeholder="Поиск по названию или клиенту..."
+              placeholder="Поиск по названию или заказчику..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 border-[#DCDCDC]"
