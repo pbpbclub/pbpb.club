@@ -767,10 +767,10 @@ const CreateOrder = () => {
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
-      {/* Breadcrumbs */}
-      <div className="text-sm text-[#7A7A79] mb-6">
-        Заказы / <span className="text-[#212121]">Создать новый</span>
-      </div>
+      <Breadcrumbs items={[
+        { label: 'Заказы', href: '/orders' },
+        { label: 'Создать новый' }
+      ]} />
 
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
