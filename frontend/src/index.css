@@ -6,25 +6,37 @@
 
 @layer base {
   :root {
+    /* Factory Hub Color System - LOCKED */
+    --fh-primary: #384E84;      /* Blue - main actions */
+    --fh-accent: #E26A2D;       /* Orange - attention/warnings */
+    --fh-black: #212121;        /* RAL 9005 - text */
+    --fh-gray: #7A7A79;         /* RAL 7004 - sidebar, secondary */
+    --fh-gray-light: #F8F9FA;   /* Background */
+    --fh-gray-border: #DCDCDC;  /* Borders */
+    --fh-white: #FFFFFF;        /* Cards, inputs */
+    --fh-success: #22C55E;      /* Green for positive */
+    --fh-warning: #E26A2D;      /* Orange for warnings */
+    
+    /* Shadcn mappings using Factory Hub colors */
     --background: 248 249 250;
     --foreground: 33 33 33;
     --card: 0 0% 100%;
     --card-foreground: 33 33 33;
     --popover: 0 0% 100%;
     --popover-foreground: 33 33 33;
-    --primary: 56 78 132;
-    --primary-foreground: 255 255 255;
-    --secondary: 122 122 121;
-    --secondary-foreground: 255 255 255;
-    --muted: 241 245 249;
-    --muted-foreground: 100 100 100;
-    --accent: 226 106 45;
-    --accent-foreground: 255 255 255;
-    --destructive: 239 68 68;
-    --destructive-foreground: 255 255 255;
-    --border: 220 220 220;
-    --input: 220 220 220;
-    --ring: 56 78 132;
+    --primary: 220 34% 35%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 48%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 18 76% 53%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 86%;
+    --input: 0 0% 86%;
+    --ring: 220 34% 35%;
     --radius: 0.25rem;
   }
 }
