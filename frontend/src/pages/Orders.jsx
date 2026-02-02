@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Plus, Search, Filter, Trash2 } from 'lucide-react';
+import { Plus, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -14,15 +14,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -37,12 +28,12 @@ const statusLabels = {
 };
 
 const statusColors = {
-  draft: 'bg-gray-200 text-gray-900 border-gray-300',
+  draft: 'bg-gray-200 text-[#212121] border-gray-300',
   project: 'bg-[#384E84] text-white border-[#384E84]',
-  estimation: 'bg-gray-200 text-gray-900 border-gray-300',
+  estimation: 'bg-gray-200 text-[#212121] border-gray-300',
   production: 'bg-[#384E84] text-white border-[#384E84]',
   completed: 'bg-[#7A7A79] text-white border-[#7A7A79]',
-  cancelled: 'bg-gray-200 text-gray-900 border-gray-300',
+  cancelled: 'bg-gray-200 text-[#212121] border-gray-300',
 };
 
 const Orders = () => {
@@ -51,13 +42,6 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [openDialog, setOpenDialog] = useState(false);
-  const [newOrder, setNewOrder] = useState({
-    name: '',
-    client: '',
-    planned_completion_date: '',
-    notes: '',
-  });
 
   useEffect(() => {
     fetchOrders();
@@ -77,28 +61,27 @@ const Orders = () => {
     }
   };
 
-  const createOrder = async () => {
+  const deleteOrder = async (orderId, e) => {
+    e.stopPropagation();
+    if (!window.confirm('Удалить заказ?')) return;
     try {
-      await axios.post(`${API}/orders`, newOrder);
-      setOpenDialog(false);
-      setNewOrder({ name: '', client: '', planned_completion_date: '', notes: '' });
+      await axios.delete(`${API}/orders/${orderId}`);
       fetchOrders();
     } catch (error) {
-      console.error('Error creating order:', error);
+      console.error('Error deleting order:', error);
     }
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'Не указана';
+    if (!dateString) return '—';
     return new Date(dateString).toLocaleDateString('ru-RU');
   };
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB',
+      style: 'decimal',
       minimumFractionDigits: 0,
-    }).format(value);
+    }).format(value) + ' ₽';
   };
 
   const filteredOrders = orders.filter(order =>
@@ -110,92 +93,36 @@ const Orders = () => {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">Заказы</h1>
-          <p className="text-gray-900">Управление заказами и производством</p>
+          <h1 className="text-3xl font-bold tracking-tight mb-1 text-[#212121]">Заказы</h1>
+          <p className="text-[#7A7A79]">Управление заказами и производством</p>
         </div>
-        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-          <DialogTrigger asChild>
-            <Button data-testid="create-order-btn" className="gap-2">
-              <Plus className="w-4 h-4" />
-              Создать заказ
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Новый заказ</DialogTitle>
-              <DialogDescription>
-                Создайте новый заказ, указав основную информацию
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div>
-                <Label htmlFor="name">Название изделия</Label>
-                <Input
-                  id="name"
-                  data-testid="order-name-input"
-                  value={newOrder.name}
-                  onChange={(e) => setNewOrder({ ...newOrder, name: e.target.value })}
-                  placeholder="Например: Обеденный стол"
-                />
-              </div>
-              <div>
-                <Label htmlFor="client">Клиент</Label>
-                <Input
-                  id="client"
-                  data-testid="order-client-input"
-                  value={newOrder.client}
-                  onChange={(e) => setNewOrder({ ...newOrder, client: e.target.value })}
-                  placeholder="Имя клиента"
-                />
-              </div>
-              <div>
-                <Label htmlFor="completion_date">Плановая дата завершения</Label>
-                <Input
-                  id="completion_date"
-                  type="date"
-                  value={newOrder.planned_completion_date}
-                  onChange={(e) => setNewOrder({ ...newOrder, planned_completion_date: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="notes">Примечания</Label>
-                <Input
-                  id="notes"
-                  value={newOrder.notes}
-                  onChange={(e) => setNewOrder({ ...newOrder, notes: e.target.value })}
-                  placeholder="Дополнительные заметки"
-                />
-              </div>
-              <Button
-                data-testid="submit-order-btn"
-                onClick={createOrder}
-                className="w-full"
-                disabled={!newOrder.name || !newOrder.client}
-              >
-                Создать
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button 
+          data-testid="create-order-btn" 
+          className="gap-2 bg-[#384E84] hover:bg-[#2d3e6a]"
+          onClick={() => navigate('/orders/new')}
+        >
+          <Plus className="w-4 h-4" />
+          Создать заказ
+        </Button>
       </div>
 
-      <Card className="mb-6 border-gray-300 shadow-sm">
+      <Card className="mb-6 border-[#DCDCDC] shadow-sm">
         <div className="p-4 flex items-center gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-900" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#7A7A79]" />
             <Input
               data-testid="search-orders-input"
               placeholder="Поиск по названию или клиенту..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 border-[#DCDCDC]"
             />
           </div>
           <select
             data-testid="filter-status-select"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 rounded border-2 border-gray-300 bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#384E84] focus:ring-opacity-20 focus:border-[#384E84]"
+            className="h-9 rounded border border-[#DCDCDC] bg-white px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#384E84] focus:ring-opacity-20 focus:border-[#384E84]"
           >
             <option value="">Все статусы</option>
             {Object.keys(statusLabels).map(status => (
@@ -205,29 +132,29 @@ const Orders = () => {
         </div>
       </Card>
 
-      <Card className="border-gray-300 shadow-sm">
+      <Card className="border-[#DCDCDC] shadow-sm">
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#384E84]"></div>
           </div>
         ) : (
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="font-semibold w-12"></TableHead>
-                <TableHead className="font-semibold">Название</TableHead>
-                <TableHead className="font-semibold">Клиент</TableHead>
-                <TableHead className="font-semibold">Статус</TableHead>
-                <TableHead className="font-semibold">Дата заказа</TableHead>
-                <TableHead className="font-semibold">План. завершение</TableHead>
-                <TableHead className="font-semibold font-mono">Себестоимость</TableHead>
-                <TableHead className="font-semibold font-mono">Цена продажи</TableHead>
+              <TableRow className="border-b border-[#DCDCDC]">
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs w-12"></TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Название</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Клиент</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Статус</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Дата заказа</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Дедлайн</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs text-right">Себестоимость</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs text-right">Цена</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredOrders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12 text-gray-900">
+                  <TableCell colSpan={8} className="text-center py-12 text-[#7A7A79]">
                     Заказов не найдено
                   </TableCell>
                 </TableRow>
@@ -236,40 +163,36 @@ const Orders = () => {
                   <TableRow
                     key={order.id}
                     data-testid={`order-row-${order.id}`}
-                    className="cursor-pointer"
+                    className="cursor-pointer border-b border-[#DCDCDC]"
+                    onClick={() => navigate(`/orders/${order.id}`)}
                   >
                     <TableCell className="w-12">
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (window.confirm('Удалить заказ?')) {
-                            axios.delete(`${API}/orders/${order.id}`).then(fetchOrders);
-                          }
-                        }}
+                        onClick={(e) => deleteOrder(order.id, e)}
                         data-testid={`delete-order-${order.id}`}
                       >
-                        <Trash2 className="w-4 h-4 text-destructive" />
+                        <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
                     </TableCell>
-                    <TableCell className="font-medium" onClick={() => navigate(`/orders/${order.id}`)}>{order.name}</TableCell>
-                    <TableCell onClick={() => navigate(`/orders/${order.id}`)}>{order.client}</TableCell>
-                    <TableCell onClick={() => navigate(`/orders/${order.id}`)}>
+                    <TableCell className="font-medium text-[#212121]">{order.name}</TableCell>
+                    <TableCell className="text-[#212121]">{order.client}</TableCell>
+                    <TableCell>
                       <Badge className={statusColors[order.status]}>
                         {statusLabels[order.status]}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-gray-900" onClick={() => navigate(`/orders/${order.id}`)}>
+                    <TableCell className="text-sm text-[#7A7A79]">
                       {formatDate(order.order_date)}
                     </TableCell>
-                    <TableCell className="text-sm text-gray-900" onClick={() => navigate(`/orders/${order.id}`)}>
+                    <TableCell className="text-sm text-[#7A7A79]">
                       {formatDate(order.planned_completion_date)}
                     </TableCell>
-                    <TableCell className="text-sm" onClick={() => navigate(`/orders/${order.id}`)}>
+                    <TableCell className="text-sm text-right text-[#212121]">
                       {formatCurrency(order.actual_cost)}
                     </TableCell>
-                    <TableCell className="text-sm font-semibold" onClick={() => navigate(`/orders/${order.id}`)}>
+                    <TableCell className="text-sm text-right font-semibold text-[#384E84]">
                       {formatCurrency(order.cash_price)}
                     </TableCell>
                   </TableRow>
