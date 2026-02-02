@@ -96,9 +96,40 @@ const OrderDetail = () => {
 
   const addStage = async () => {
     try {
-      await axios.post(`${API}/orders/${orderId}/stages`, newStage);
+      // Create the stage
+      const stagePayload = {
+        type: newStage.type,
+        status: newStage.status,
+        start_date: newStage.start_date,
+        end_date: newStage.end_date,
+        master: newStage.master,
+        notes: newStage.notes,
+      };
+      const stageResponse = await axios.post(`${API}/orders/${orderId}/stages`, stagePayload);
+      const stageId = stageResponse.data.id;
+
+      // If work details provided, add a cost item
+      if (newStage.work_name && newStage.work_hours > 0) {
+        await axios.post(`${API}/orders/${orderId}/stages/${stageId}/costs`, {
+          name: newStage.work_name,
+          quantity: newStage.work_hours,
+          unit: 'ч',
+          price_per_unit: newStage.work_rate,
+        });
+      }
+
       setOpenStageDialog(false);
-      setNewStage({ type: 'welding', status: 'not_started', start_date: '', end_date: '', master: '', notes: '' });
+      setNewStage({ 
+        type: 'welding', 
+        status: 'not_started', 
+        start_date: '', 
+        end_date: '', 
+        master: '', 
+        notes: '',
+        work_name: '',
+        work_hours: 0,
+        work_rate: 500,
+      });
       fetchOrder();
     } catch (error) {
       console.error('Error adding stage:', error);
