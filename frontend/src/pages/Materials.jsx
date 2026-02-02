@@ -145,18 +145,26 @@ const Materials = () => {
     }).format(value) + ' ₽';
   };
 
-  // Filter materials by tab and search
-  const warehouseMaterials = materials.filter(m => 
-    (m.source === 'warehouse' || !m.source) &&
-    (m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     (m.article && m.article.toLowerCase().includes(searchQuery.toLowerCase())))
-  );
+  // Filter materials by tab, search and type
+  const warehouseMaterials = materials.filter(m => {
+    const isWarehouse = m.source === 'warehouse' || !m.source;
+    const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (m.article && m.article.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesType = warehouseTypeFilter === 'all' || m.type === warehouseTypeFilter;
+    return isWarehouse && matchesSearch && matchesType;
+  });
 
-  const purchaseMaterials = materials.filter(m => 
-    m.source === 'purchase' &&
-    (m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     (m.article && m.article.toLowerCase().includes(searchQuery.toLowerCase())))
-  );
+  const purchaseMaterials = materials.filter(m => {
+    const isPurchase = m.source === 'purchase';
+    const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (m.article && m.article.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesType = purchaseTypeFilter === 'all' || m.type === purchaseTypeFilter;
+    return isPurchase && matchesSearch && matchesType;
+  });
+
+  // Count totals (without type filter)
+  const warehouseTotal = materials.filter(m => m.source === 'warehouse' || !m.source).length;
+  const purchaseTotal = materials.filter(m => m.source === 'purchase').length;
 
   const filteredMaterials = activeTab === 'warehouse' ? warehouseMaterials :
                            activeTab === 'purchase' ? purchaseMaterials :
@@ -164,8 +172,8 @@ const Materials = () => {
 
   const tabs = [
     { id: 'all', label: 'Все', count: materials.length },
-    { id: 'warehouse', label: 'Из склада', count: warehouseMaterials.length },
-    { id: 'purchase', label: 'Под заказ', count: purchaseMaterials.length },
+    { id: 'warehouse', label: 'Из склада', count: warehouseTotal },
+    { id: 'purchase', label: 'Под заказ', count: purchaseTotal },
   ];
 
   return (
