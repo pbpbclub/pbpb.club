@@ -212,6 +212,71 @@ class OrderUpdate(BaseModel):
     actual_completion_date: Optional[str] = None
     notes: Optional[str] = None
 
+# File model for order attachments
+class FileType(str, Enum):
+    document = "document"
+    image = "image"
+    invoice = "invoice"
+    contract = "contract"
+    drawing = "drawing"
+    other = "other"
+
+class OrderFile(BaseModel):
+    id: str = Field(default_factory=lambda: f"file_{int(datetime.now().timestamp()*1000)}")
+    order_id: str
+    name: str
+    file_type: FileType = FileType.other
+    size: int = 0  # bytes
+    mime_type: Optional[str] = None
+    url: Optional[str] = None  # For external URLs or path to stored file
+    uploaded_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    uploaded_by: Optional[str] = None
+
+class OrderFileCreate(BaseModel):
+    name: str
+    file_type: FileType = FileType.other
+    size: int = 0
+    mime_type: Optional[str] = None
+    url: Optional[str] = None
+    uploaded_by: Optional[str] = None
+
+# Event model for order history
+class EventType(str, Enum):
+    created = "created"
+    updated = "updated"
+    status_changed = "status_changed"
+    stage_added = "stage_added"
+    stage_updated = "stage_updated"
+    cost_added = "cost_added"
+    file_uploaded = "file_uploaded"
+    comment = "comment"
+
+class OrderEvent(BaseModel):
+    id: str = Field(default_factory=lambda: f"event_{int(datetime.now().timestamp()*1000)}")
+    order_id: str
+    event_type: EventType
+    message: str
+    details: Optional[Dict[str, Any]] = None
+    user: str = "Система"
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class OrderEventCreate(BaseModel):
+    event_type: EventType
+    message: str
+    details: Optional[Dict[str, Any]] = None
+    user: str = "Система"
+
+# Settings model for app configuration
+class AppSettings(BaseModel):
+    id: str = "app_settings"
+    markup_percent: float = 60.0  # Наценка в процентах
+    cashless_coefficient: float = 0.87  # Коэффициент для безналичного расчёта
+    default_work_rate: float = 500.0  # Ставка по умолчанию ₽/ч
+    company_name: Optional[str] = None
+    company_inn: Optional[str] = None
+    company_address: Optional[str] = None
+    updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
 # Materials endpoints
 @api_router.post("/materials", response_model=Material)
 async def create_material(material: MaterialCreate):
