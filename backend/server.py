@@ -545,6 +545,117 @@ async def get_client_orders(client_id: str):
     orders = await db.orders.find({"client": client_name}, {"_id": 0}).sort("created_at", -1).to_list(1000)
     return orders
 
+# ============== ORDER FILES API ==============
+
+@api_router.get("/orders/{order_id}/files", response_model=List[OrderFile])
+async def get_order_files(order_id: str):
+    """Get all files for an order"""
+    order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    files = await db.order_files.find({"order_id": order_id}, {"_id": 0}).sort("uploaded_at", -1).to_list(100)
+    return files
+
+@api_router.post("/orders/{order_id}/files", response_model=OrderFile)
+async def upload_order_file(order_id: str, file_data: OrderFileCreate):
+    """Upload a file metadata for an order"""
+    order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    file_obj = OrderFile(order_id=order_id, **file_data.model_dump())
+    await db.order_files.insert_one(file_obj.model_dump())
+    
+    # Log event
+    event = OrderEvent(
+        order_id=order_id,
+        event_type=EventType.file_uploaded,
+        message=f"Загружен файл: {file_data.name}",
+        user=file_data.uploaded_by or "Система"
+    )
+    await db.order_events.insert_one(event.model_dump())
+    
+    return file_obj
+
+@api_router.delete("/orders/{order_id}/files/{file_id}")
+async def delete_order_file(order_id: str, file_id: str):
+    """Delete a file from an order"""
+    result = await db.order_files.delete_one({"id": file_id, "order_id": order_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="File not found")
+    return {"message": "File deleted"}
+
+# ============== ORDER EVENTS API ==============
+
+@api_router.get("/orders/{order_id}/events", response_model=List[OrderEvent])
+async def get_order_events(order_id: str):
+    """Get all events for an order"""
+    order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    events = await db.order_events.find({"order_id": order_id}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return events
+
+@api_router.post("/orders/{order_id}/events", response_model=OrderEvent)
+async def create_order_event(order_id: str, event_data: OrderEventCreate):
+    """Create a new event for an order"""
+    order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    event = OrderEvent(order_id=order_id, **event_data.model_dump())
+    await db.order_events.insert_one(event.model_dump())
+    return event
+
+# ============== STAGE UPDATE WITH EVENT LOGGING ==============
+
+@api_router.put("/orders/{order_id}/stages/{stage_id}/status")
+async def update_stage_status(order_id: str, stage_id: str, status: StageStatus):
+    """Update stage status and log event"""
+    order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    stages = order.get("stages", [])
+    stage_index = next((i for i, s in enumerate(stages) if s["id"] == stage_id), None)
+    if stage_index is None:
+        raise HTTPException(status_code=404, detail="Stage not found")
+    
+    old_status = stages[stage_index]["status"]
+    stages[stage_index]["status"] = status.value
+    
+    await db.orders.update_one({"id": order_id}, {"$set": {"stages": stages}})
+    
+    # Log event
+    stage_type = stages[stage_index]["type"]
+    event = OrderEvent(
+        order_id=order_id,
+        event_type=EventType.stage_updated,
+        message=f"Статус этапа '{stageTypeLabels.get(stage_type, stage_type)}' изменен: {stageStatusLabels.get(old_status, old_status)} → {stageStatusLabels.get(status.value, status.value)}",
+        details={"stage_id": stage_id, "old_status": old_status, "new_status": status.value}
+    )
+    await db.order_events.insert_one(event.model_dump())
+    
+    return {"message": "Stage status updated", "stage_id": stage_id, "status": status.value}
+
+# Helper dictionaries for event messages
+stageTypeLabels = {
+    "project": "Проект",
+    "estimation": "Смета",
+    "welding": "Сварка",
+    "painting": "Покраска",
+    "woodwork": "Столярка",
+    "upholstery": "Обивка",
+}
+
+stageStatusLabels = {
+    "not_started": "Не начат",
+    "in_progress": "В работе",
+    "completed": "Завершен",
+}
+
 app.include_router(api_router)
 
 app.add_middleware(
