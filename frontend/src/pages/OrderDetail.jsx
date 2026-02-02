@@ -370,31 +370,21 @@ const OrderDetail = () => {
                 className="text-3xl font-bold h-auto py-2 border-[#384E84]"
                 data-testid="edit-order-name"
               />
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Label className="text-[#7A7A79]">Клиент:</Label>
-                  <Input
-                    value={editedOrder.client}
-                    onChange={(e) => setEditedOrder({ ...editedOrder, client: e.target.value })}
-                    className="w-48 border-[#384E84]"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Label className="text-[#7A7A79]">Статус:</Label>
-                  <Select 
-                    value={editedOrder.status} 
-                    onValueChange={(value) => setEditedOrder({ ...editedOrder, status: value })}
-                  >
-                    <SelectTrigger className="w-40 border-[#384E84]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(orderStatusLabels).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>{label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="flex items-center gap-2">
+                <Label className="text-[#7A7A79]">Статус:</Label>
+                <Select 
+                  value={editedOrder.status} 
+                  onValueChange={(value) => setEditedOrder({ ...editedOrder, status: value })}
+                >
+                  <SelectTrigger className="w-40 border-[#384E84]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(orderStatusLabels).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           ) : (
@@ -409,7 +399,6 @@ const OrderDetail = () => {
                   {orderStatusLabels[displayStatus]}
                 </Badge>
               </div>
-              <p className="text-[#7A7A79]">Клиент: {displayClient}</p>
             </>
           )}
         </div>
