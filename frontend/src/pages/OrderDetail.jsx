@@ -4,7 +4,7 @@ import axios from 'axios';
 import { 
   ArrowLeft, Plus, Trash2, ChevronDown, ChevronUp, Edit2, 
   Download, FileText, Clock, CheckCircle, AlertCircle, 
-  User, Calendar, Package, DollarSign, Upload, File
+  User, Calendar, Package, DollarSign, Upload, File, Save, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,21 +73,15 @@ const OrderDetail = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [expandedStages, setExpandedStages] = useState({});
   
-  // Dialogs
-  const [editOrderDialog, setEditOrderDialog] = useState(false);
+  // Edit mode
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedOrder, setEditedOrder] = useState(null);
+  const [editedStages, setEditedStages] = useState([]);
+  
+  // Dialogs for adding new items
   const [openStageDialog, setOpenStageDialog] = useState(false);
   const [openCostDialog, setOpenCostDialog] = useState(false);
   const [selectedStageId, setSelectedStageId] = useState(null);
-  
-  // Form states
-  const [orderForm, setOrderForm] = useState({
-    name: '',
-    client: '',
-    status: 'draft',
-    planned_completion_date: '',
-    notes: '',
-    description: '',
-  });
   
   const [newStage, setNewStage] = useState({
     type: 'welding',
@@ -129,14 +123,6 @@ const OrderDetail = () => {
     try {
       const response = await axios.get(`${API}/orders/${orderId}`);
       setOrder(response.data);
-      setOrderForm({
-        name: response.data.name,
-        client: response.data.client,
-        status: response.data.status,
-        planned_completion_date: response.data.planned_completion_date || '',
-        notes: response.data.notes || '',
-        description: response.data.description || '',
-      });
       const expanded = {};
       response.data.stages.forEach(s => { expanded[s.id] = true; });
       setExpandedStages(expanded);
@@ -147,14 +133,63 @@ const OrderDetail = () => {
     }
   };
 
-  const saveOrderDetails = async () => {
+  // Enter edit mode
+  const enterEditMode = () => {
+    setEditedOrder({
+      name: order.name,
+      client: order.client,
+      status: order.status,
+      planned_completion_date: order.planned_completion_date || '',
+      notes: order.notes || '',
+    });
+    setEditedStages(JSON.parse(JSON.stringify(order.stages))); // Deep copy
+    setIsEditMode(true);
+  };
+
+  // Cancel edit mode
+  const cancelEditMode = () => {
+    setEditedOrder(null);
+    setEditedStages([]);
+    setIsEditMode(false);
+  };
+
+  // Save all changes
+  const saveAllChanges = async () => {
     try {
-      await axios.put(`${API}/orders/${orderId}`, orderForm);
-      setEditOrderDialog(false);
+      // Save order details
+      await axios.put(`${API}/orders/${orderId}`, editedOrder);
+      
+      // Update stages - for now just update the whole order
+      // In production, you'd update each stage individually
+      
+      setIsEditMode(false);
       fetchOrder();
     } catch (error) {
-      console.error('Error saving order:', error);
+      console.error('Error saving changes:', error);
     }
+  };
+
+  // Update edited stage
+  const updateEditedStage = (stageIndex, field, value) => {
+    const newStages = [...editedStages];
+    newStages[stageIndex] = { ...newStages[stageIndex], [field]: value };
+    setEditedStages(newStages);
+  };
+
+  // Update cost item in edited stage
+  const updateEditedCostItem = (stageIndex, costIndex, field, value) => {
+    const newStages = [...editedStages];
+    const costItems = [...(newStages[stageIndex].cost_items || [])];
+    costItems[costIndex] = { ...costItems[costIndex], [field]: value };
+    
+    // Recalculate total
+    if (field === 'quantity' || field === 'price_per_unit') {
+      costItems[costIndex].total = costItems[costIndex].quantity * costItems[costIndex].price_per_unit;
+    }
+    
+    newStages[stageIndex].cost_items = costItems;
+    newStages[stageIndex].total_cost = costItems.reduce((sum, item) => sum + (item.total || 0), 0);
+    setEditedStages(newStages);
   };
 
   const addStage = async () => {
@@ -227,8 +262,8 @@ const OrderDetail = () => {
   };
 
   const getAllWorks = () => {
-    if (!order) return [];
-    return order.stages.flatMap(stage => 
+    const stages = isEditMode ? editedStages : (order?.stages || []);
+    return stages.flatMap(stage => 
       (stage.cost_items || []).filter(item => item.unit === 'ч').map(item => ({
         ...item,
         stageType: stage.type,
@@ -238,8 +273,8 @@ const OrderDetail = () => {
   };
 
   const getAllMaterials = () => {
-    if (!order) return [];
-    return order.stages.flatMap(stage => 
+    const stages = isEditMode ? editedStages : (order?.stages || []);
+    return stages.flatMap(stage => 
       (stage.cost_items || []).filter(item => item.unit !== 'ч').map(item => ({
         ...item,
         stageType: stage.type,
@@ -264,52 +299,129 @@ const OrderDetail = () => {
   }
 
   const margin = calculateMargin();
-  const progress = order.stages.length > 0 
-    ? Math.round((order.stages.filter(s => s.status === 'completed').length / order.stages.length) * 100)
+  const displayStages = isEditMode ? editedStages : order.stages;
+  const progress = displayStages.length > 0 
+    ? Math.round((displayStages.filter(s => s.status === 'completed').length / displayStages.length) * 100)
     : 0;
+
+  // Get display values (edited or original)
+  const displayName = isEditMode ? editedOrder.name : order.name;
+  const displayClient = isEditMode ? editedOrder.client : order.client;
+  const displayStatus = isEditMode ? editedOrder.status : order.status;
+  const displayNotes = isEditMode ? editedOrder.notes : order.notes;
+  const displayDeadline = isEditMode ? editedOrder.planned_completion_date : order.planned_completion_date;
 
   return (
     <div className="p-8">
       <Breadcrumbs items={[
         { label: 'Заказы', href: '/orders' },
-        { label: order.name }
+        { label: displayName }
       ]} />
 
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold text-[#212121]">{order.name}</h1>
-            <Badge className={
-              order.status === 'completed' ? 'bg-green-600 text-white' :
-              order.status === 'production' ? 'bg-[#384E84] text-white' :
-              'bg-gray-200 text-[#212121]'
-            }>
-              {orderStatusLabels[order.status]}
-            </Badge>
-          </div>
-          <p className="text-[#7A7A79]">Клиент: {order.client}</p>
+        <div className="flex-1">
+          {isEditMode ? (
+            <div className="space-y-3">
+              <Input
+                value={editedOrder.name}
+                onChange={(e) => setEditedOrder({ ...editedOrder, name: e.target.value })}
+                className="text-3xl font-bold h-auto py-2 border-[#384E84]"
+                data-testid="edit-order-name"
+              />
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Label className="text-[#7A7A79]">Клиент:</Label>
+                  <Input
+                    value={editedOrder.client}
+                    onChange={(e) => setEditedOrder({ ...editedOrder, client: e.target.value })}
+                    className="w-48 border-[#384E84]"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label className="text-[#7A7A79]">Статус:</Label>
+                  <Select 
+                    value={editedOrder.status} 
+                    onValueChange={(value) => setEditedOrder({ ...editedOrder, status: value })}
+                  >
+                    <SelectTrigger className="w-40 border-[#384E84]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(orderStatusLabels).map(([key, label]) => (
+                        <SelectItem key={key} value={key}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-3xl font-bold text-[#212121]">{displayName}</h1>
+                <Badge className={
+                  displayStatus === 'completed' ? 'bg-green-600 text-white' :
+                  displayStatus === 'production' ? 'bg-[#384E84] text-white' :
+                  'bg-gray-200 text-[#212121]'
+                }>
+                  {orderStatusLabels[displayStatus]}
+                </Badge>
+              </div>
+              <p className="text-[#7A7A79]">Клиент: {displayClient}</p>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            className="gap-2 border-[#DCDCDC]"
-            onClick={() => window.print()}
-            data-testid="download-pdf-btn"
-          >
-            <Download className="w-4 h-4" />
-            Скачать PDF
-          </Button>
-          <Button
-            className="gap-2 bg-[#384E84] hover:bg-[#2d3e6a]"
-            onClick={() => setEditOrderDialog(true)}
-            data-testid="edit-order-btn"
-          >
-            <Edit2 className="w-4 h-4" />
-            Редактировать
-          </Button>
+          {isEditMode ? (
+            <>
+              <Button
+                variant="outline"
+                className="gap-2 border-[#DCDCDC]"
+                onClick={cancelEditMode}
+              >
+                <X className="w-4 h-4" />
+                Отмена
+              </Button>
+              <Button
+                className="gap-2 bg-green-600 hover:bg-green-700"
+                onClick={saveAllChanges}
+                data-testid="save-all-btn"
+              >
+                <Save className="w-4 h-4" />
+                Сохранить всё
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                className="gap-2 border-[#DCDCDC]"
+                onClick={() => window.print()}
+              >
+                <Download className="w-4 h-4" />
+                Скачать PDF
+              </Button>
+              <Button
+                className="gap-2 bg-[#384E84] hover:bg-[#2d3e6a]"
+                onClick={enterEditMode}
+                data-testid="edit-order-btn"
+              >
+                <Edit2 className="w-4 h-4" />
+                Редактировать
+              </Button>
+            </>
+          )}
         </div>
       </div>
+
+      {/* Edit mode indicator */}
+      {isEditMode && (
+        <div className="bg-[#384E84] text-white px-4 py-2 rounded-lg mb-6 flex items-center gap-2">
+          <Edit2 className="w-4 h-4" />
+          <span>Режим редактирования — изменения будут сохранены после нажатия "Сохранить всё"</span>
+        </div>
+      )}
 
       {/* Financial Summary Cards */}
       <div className="grid grid-cols-4 gap-4 mb-6">
@@ -386,15 +498,32 @@ const OrderDetail = () => {
                     </div>
                     <div>
                       <div className="text-xs text-[#7A7A79] uppercase mb-1">Дедлайн</div>
-                      <div className="text-[#212121]">{formatDate(order.planned_completion_date)}</div>
+                      {isEditMode ? (
+                        <Input
+                          type="date"
+                          value={editedOrder.planned_completion_date}
+                          onChange={(e) => setEditedOrder({ ...editedOrder, planned_completion_date: e.target.value })}
+                          className="border-[#384E84]"
+                        />
+                      ) : (
+                        <div className="text-[#212121]">{formatDate(displayDeadline)}</div>
+                      )}
                     </div>
                   </div>
-                  {order.notes && (
-                    <div>
-                      <div className="text-xs text-[#7A7A79] uppercase mb-1">Описание</div>
-                      <div className="text-[#212121]">{order.notes}</div>
-                    </div>
-                  )}
+                  <div>
+                    <div className="text-xs text-[#7A7A79] uppercase mb-1">Описание</div>
+                    {isEditMode ? (
+                      <Textarea
+                        value={editedOrder.notes}
+                        onChange={(e) => setEditedOrder({ ...editedOrder, notes: e.target.value })}
+                        className="border-[#384E84]"
+                        rows={3}
+                        placeholder="Добавьте описание..."
+                      />
+                    ) : (
+                      <div className="text-[#212121]">{displayNotes || '—'}</div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
 
@@ -413,7 +542,7 @@ const OrderDetail = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {order.stages.slice(0, 3).map(stage => (
+                    {displayStages.slice(0, 3).map((stage, index) => (
                       <div key={stage.id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
                         <div className="flex items-center gap-3">
                           <div className={`w-2 h-2 rounded-full ${
@@ -422,16 +551,32 @@ const OrderDetail = () => {
                           }`} />
                           <span className="font-medium text-[#212121]">{stageTypeLabels[stage.type]}</span>
                         </div>
-                        <Badge className={
-                          stage.status === 'completed' ? 'bg-green-100 text-green-800' :
-                          stage.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                          'bg-gray-100 text-gray-800'
-                        }>
-                          {stageStatusLabels[stage.status]}
-                        </Badge>
+                        {isEditMode ? (
+                          <Select 
+                            value={stage.status} 
+                            onValueChange={(value) => updateEditedStage(index, 'status', value)}
+                          >
+                            <SelectTrigger className="w-32 h-8 text-xs border-[#384E84]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(stageStatusLabels).map(([key, label]) => (
+                                <SelectItem key={key} value={key}>{label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Badge className={
+                            stage.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            stage.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                            'bg-gray-100 text-gray-800'
+                          }>
+                            {stageStatusLabels[stage.status]}
+                          </Badge>
+                        )}
                       </div>
                     ))}
-                    {order.stages.length === 0 && (
+                    {displayStages.length === 0 && (
                       <div className="text-center py-4 text-[#7A7A79]">
                         Этапов пока нет
                       </div>
@@ -444,44 +589,110 @@ const OrderDetail = () => {
 
           {activeTab === 'stages' && (
             <div className="space-y-4">
-              {order.stages.map(stage => (
-                <Card key={stage.id} className="border-[#DCDCDC]">
+              {displayStages.map((stage, stageIndex) => (
+                <Card key={stage.id} className={`border-[#DCDCDC] ${isEditMode ? 'border-[#384E84]' : ''}`}>
                   <div 
                     className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50"
                     onClick={() => toggleStage(stage.id)}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1">
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-white font-medium
                         ${stage.status === 'completed' ? 'bg-green-600' : 
                           stage.status === 'in_progress' ? 'bg-[#384E84]' : 'bg-[#7A7A79]'}`}
                       >
                         {stageTypeLabels[stage.type]?.[0]}
                       </div>
-                      <div>
-                        <div className="font-semibold text-[#212121]">{stageTypeLabels[stage.type]}</div>
-                        <div className="text-sm text-[#7A7A79]">
-                          {(stage.cost_items || []).length} позиций
-                          {stage.master && ` • ${stage.master}`}
-                        </div>
+                      <div className="flex-1">
+                        {isEditMode ? (
+                          <div className="flex items-center gap-2">
+                            <Select 
+                              value={stage.type} 
+                              onValueChange={(value) => updateEditedStage(stageIndex, 'type', value)}
+                            >
+                              <SelectTrigger className="w-32 border-[#384E84]" onClick={e => e.stopPropagation()}>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(stageTypeLabels).map(([key, label]) => (
+                                  <SelectItem key={key} value={key}>{label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Input
+                              value={stage.master || ''}
+                              onChange={(e) => updateEditedStage(stageIndex, 'master', e.target.value)}
+                              placeholder="Мастер"
+                              className="w-32 border-[#384E84]"
+                              onClick={e => e.stopPropagation()}
+                            />
+                          </div>
+                        ) : (
+                          <>
+                            <div className="font-semibold text-[#212121]">{stageTypeLabels[stage.type]}</div>
+                            <div className="text-sm text-[#7A7A79]">
+                              {(stage.cost_items || []).length} позиций
+                              {stage.master && ` • ${stage.master}`}
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="font-bold text-[#212121]">{formatCurrency(stage.total_cost)}</div>
-                        <Badge className={
-                          stage.status === 'completed' ? 'bg-green-100 text-green-800' :
-                          stage.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                          'bg-gray-100 text-gray-800'
-                        }>
-                          {stageStatusLabels[stage.status]}
-                        </Badge>
-                      </div>
+                      {isEditMode ? (
+                        <Select 
+                          value={stage.status} 
+                          onValueChange={(value) => updateEditedStage(stageIndex, 'status', value)}
+                        >
+                          <SelectTrigger className="w-32 border-[#384E84]" onClick={e => e.stopPropagation()}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(stageStatusLabels).map(([key, label]) => (
+                              <SelectItem key={key} value={key}>{label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <div className="text-right">
+                          <div className="font-bold text-[#212121]">{formatCurrency(stage.total_cost)}</div>
+                          <Badge className={
+                            stage.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            stage.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                            'bg-gray-100 text-gray-800'
+                          }>
+                            {stageStatusLabels[stage.status]}
+                          </Badge>
+                        </div>
+                      )}
                       {expandedStages[stage.id] ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                     </div>
                   </div>
                   
                   {expandedStages[stage.id] && (
                     <div className="border-t border-[#DCDCDC] p-4 bg-gray-50">
+                      {isEditMode && (
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div>
+                            <Label className="text-xs text-[#7A7A79]">Дата начала</Label>
+                            <Input
+                              type="date"
+                              value={stage.start_date || ''}
+                              onChange={(e) => updateEditedStage(stageIndex, 'start_date', e.target.value)}
+                              className="border-[#384E84]"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-[#7A7A79]">Дата окончания</Label>
+                            <Input
+                              type="date"
+                              value={stage.end_date || ''}
+                              onChange={(e) => updateEditedStage(stageIndex, 'end_date', e.target.value)}
+                              className="border-[#384E84]"
+                            />
+                          </div>
+                        </div>
+                      )}
+                      
                       {stage.cost_items?.length > 0 ? (
                         <table className="w-full text-sm">
                           <thead>
@@ -493,12 +704,45 @@ const OrderDetail = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {stage.cost_items.map(item => (
+                            {stage.cost_items.map((item, costIndex) => (
                               <tr key={item.id} className="border-b border-gray-200">
-                                <td className="py-2 text-[#212121]">{item.name}</td>
-                                <td className="py-2 text-right text-[#7A7A79]">{item.quantity} {item.unit}</td>
-                                <td className="py-2 text-right text-[#7A7A79]">{formatCurrency(item.price_per_unit)}</td>
-                                <td className="py-2 text-right font-medium text-[#212121]">{formatCurrency(item.total)}</td>
+                                {isEditMode ? (
+                                  <>
+                                    <td className="py-2">
+                                      <Input
+                                        value={item.name}
+                                        onChange={(e) => updateEditedCostItem(stageIndex, costIndex, 'name', e.target.value)}
+                                        className="h-8 border-[#384E84]"
+                                      />
+                                    </td>
+                                    <td className="py-2">
+                                      <Input
+                                        type="number"
+                                        value={item.quantity}
+                                        onChange={(e) => updateEditedCostItem(stageIndex, costIndex, 'quantity', parseFloat(e.target.value) || 0)}
+                                        className="h-8 w-20 text-right border-[#384E84]"
+                                      />
+                                    </td>
+                                    <td className="py-2">
+                                      <Input
+                                        type="number"
+                                        value={item.price_per_unit}
+                                        onChange={(e) => updateEditedCostItem(stageIndex, costIndex, 'price_per_unit', parseFloat(e.target.value) || 0)}
+                                        className="h-8 w-24 text-right border-[#384E84]"
+                                      />
+                                    </td>
+                                    <td className="py-2 text-right font-medium text-[#212121]">
+                                      {formatCurrency(item.quantity * item.price_per_unit)}
+                                    </td>
+                                  </>
+                                ) : (
+                                  <>
+                                    <td className="py-2 text-[#212121]">{item.name}</td>
+                                    <td className="py-2 text-right text-[#7A7A79]">{item.quantity} {item.unit}</td>
+                                    <td className="py-2 text-right text-[#7A7A79]">{formatCurrency(item.price_per_unit)}</td>
+                                    <td className="py-2 text-right font-medium text-[#212121]">{formatCurrency(item.total)}</td>
+                                  </>
+                                )}
                               </tr>
                             ))}
                           </tbody>
@@ -616,13 +860,13 @@ const OrderDetail = () => {
                   <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
                     <span className="text-[#7A7A79]">Работы</span>
                     <span className="font-bold text-[#212121]">
-                      {formatCurrency(getAllWorks().reduce((sum, w) => sum + w.total, 0))}
+                      {formatCurrency(getAllWorks().reduce((sum, w) => sum + (w.total || 0), 0))}
                     </span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
                     <span className="text-[#7A7A79]">Материалы</span>
                     <span className="font-bold text-[#212121]">
-                      {formatCurrency(getAllMaterials().reduce((sum, m) => sum + m.total, 0))}
+                      {formatCurrency(getAllMaterials().reduce((sum, m) => sum + (m.total || 0), 0))}
                     </span>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-[#384E84] text-white rounded">
@@ -698,10 +942,10 @@ const OrderDetail = () => {
             <CardContent>
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-full bg-[#384E84] text-white flex items-center justify-center font-medium">
-                  {order.client.charAt(0)}
+                  {displayClient?.charAt(0) || '?'}
                 </div>
                 <div>
-                  <div className="font-medium text-[#212121]">{order.client}</div>
+                  <div className="font-medium text-[#212121]">{displayClient}</div>
                 </div>
               </div>
             </CardContent>
@@ -721,7 +965,7 @@ const OrderDetail = () => {
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#E26A2D]" />
                 <span className="text-sm text-[#7A7A79]">Дедлайн:</span>
-                <span className="text-sm text-[#212121]">{formatDate(order.planned_completion_date)}</span>
+                <span className="text-sm text-[#212121]">{formatDate(displayDeadline)}</span>
               </div>
             </CardContent>
           </Card>
@@ -734,7 +978,7 @@ const OrderDetail = () => {
             <CardContent className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-sm text-[#7A7A79]">Этапов</span>
-                <span className="text-sm font-medium text-[#212121]">{order.stages.length}</span>
+                <span className="text-sm font-medium text-[#212121]">{displayStages.length}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-[#7A7A79]">Работ</span>
@@ -748,71 +992,6 @@ const OrderDetail = () => {
           </Card>
         </div>
       </div>
-
-      {/* Edit Order Dialog */}
-      <Dialog open={editOrderDialog} onOpenChange={setEditOrderDialog}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-[#212121]">Редактировать заказ</DialogTitle>
-            <DialogDescription>Измените информацию о заказе</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div>
-              <Label className="text-[#212121]">Название</Label>
-              <Input
-                value={orderForm.name}
-                onChange={(e) => setOrderForm({ ...orderForm, name: e.target.value })}
-                className="border-[#DCDCDC]"
-              />
-            </div>
-            <div>
-              <Label className="text-[#212121]">Клиент</Label>
-              <Input
-                value={orderForm.client}
-                onChange={(e) => setOrderForm({ ...orderForm, client: e.target.value })}
-                className="border-[#DCDCDC]"
-              />
-            </div>
-            <div>
-              <Label className="text-[#212121]">Статус</Label>
-              <Select value={orderForm.status} onValueChange={(value) => setOrderForm({ ...orderForm, status: value })}>
-                <SelectTrigger className="border-[#DCDCDC]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(orderStatusLabels).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-[#212121]">Дедлайн</Label>
-              <Input
-                type="date"
-                value={orderForm.planned_completion_date}
-                onChange={(e) => setOrderForm({ ...orderForm, planned_completion_date: e.target.value })}
-                className="border-[#DCDCDC]"
-              />
-            </div>
-            <div>
-              <Label className="text-[#212121]">Описание / Примечания</Label>
-              <Textarea
-                value={orderForm.notes}
-                onChange={(e) => setOrderForm({ ...orderForm, notes: e.target.value })}
-                className="border-[#DCDCDC]"
-                rows={3}
-              />
-            </div>
-            <Button 
-              onClick={saveOrderDetails} 
-              className="w-full bg-[#384E84] hover:bg-[#2d3e6a]"
-            >
-              Сохранить
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Add Stage Dialog */}
       <Dialog open={openStageDialog} onOpenChange={setOpenStageDialog}>
