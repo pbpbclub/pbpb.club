@@ -124,6 +124,7 @@ const OrderDetail = () => {
 
   useEffect(() => {
     fetchOrder();
+    fetchClients();
   }, [orderId]);
 
   const fetchOrder = async () => {
@@ -140,6 +141,32 @@ const OrderDetail = () => {
     }
   };
 
+  const fetchClients = async () => {
+    try {
+      const response = await axios.get(`${API}/clients`);
+      setClients(response.data);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+    }
+  };
+
+  const createNewClient = async () => {
+    if (!newClient.name.trim()) return;
+    try {
+      const response = await axios.post(`${API}/clients`, newClient);
+      setClients([response.data, ...clients]);
+      setEditedOrder({ ...editedOrder, client: response.data.name });
+      setOpenNewClientDialog(false);
+      setNewClient({ name: '', phone: '', email: '' });
+    } catch (error) {
+      console.error('Error creating client:', error);
+    }
+  };
+
+  const filteredClients = clients.filter(c => 
+    c.name.toLowerCase().includes(clientSearch.toLowerCase())
+  );
+
   // Enter edit mode
   const enterEditMode = () => {
     setEditedOrder({
@@ -149,6 +176,7 @@ const OrderDetail = () => {
       planned_completion_date: order.planned_completion_date || '',
       notes: order.notes || '',
     });
+    setClientSearch(order.client || '');
     setEditedStages(JSON.parse(JSON.stringify(order.stages))); // Deep copy
     setIsEditMode(true);
   };
