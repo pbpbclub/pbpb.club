@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Package, Clock, CheckCircle, AlertCircle, Play, Pause } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { Package, Clock, CheckCircle, Play, Pause, GripVertical } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Breadcrumbs from '@/components/Breadcrumbs';
 
@@ -18,6 +19,12 @@ const stageTypeLabels = {
   upholstery: 'Обивка',
 };
 
+const stageStatusLabels = {
+  not_started: 'Не начат',
+  in_progress: 'В работе',
+  completed: 'Завершен',
+};
+
 const Production = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
@@ -30,7 +37,6 @@ const Production = () => {
   const fetchOrders = async () => {
     try {
       const response = await axios.get(`${API}/orders`);
-      // Filter only active orders
       const activeOrders = response.data.filter(o => 
         ['project', 'estimation', 'production'].includes(o.status)
       );
@@ -42,22 +48,19 @@ const Production = () => {
     }
   };
 
-  // Group stages by type
-  const getStagesByType = () => {
-    const stageMap = {
-      project: [],
-      estimation: [],
-      welding: [],
-      painting: [],
-      woodwork: [],
-      upholstery: [],
+  // Group stages by status for Kanban columns
+  const getStagesByStatus = () => {
+    const statusMap = {
+      not_started: [],
+      in_progress: [],
+      completed: [],
     };
 
     orders.forEach(order => {
       if (order.stages) {
         order.stages.forEach(stage => {
-          if (stageMap[stage.type]) {
-            stageMap[stage.type].push({
+          if (statusMap[stage.status]) {
+            statusMap[stage.status].push({
               ...stage,
               orderName: order.name,
               orderId: order.id,
@@ -68,10 +71,52 @@ const Production = () => {
       }
     });
 
-    return stageMap;
+    return statusMap;
   };
 
-  const stagesByType = getStagesByType();
+  const [stagesByStatus, setStagesByStatus] = useState({ not_started: [], in_progress: [], completed: [] });
+
+  useEffect(() => {
+    setStagesByStatus(getStagesByStatus());
+  }, [orders]);
+
+  // Handle drag end
+  const handleDragEnd = async (result) => {
+    const { source, destination, draggableId } = result;
+
+    if (!destination) return;
+    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
+
+    // Find the stage and its order
+    const [orderId, stageId] = draggableId.split('__');
+    const newStatus = destination.droppableId;
+
+    // Optimistic update
+    const newStagesByStatus = { ...stagesByStatus };
+    const sourceItems = [...newStagesByStatus[source.droppableId]];
+    const [movedItem] = sourceItems.splice(source.index, 1);
+    movedItem.status = newStatus;
+    
+    const destItems = source.droppableId === destination.droppableId 
+      ? sourceItems 
+      : [...newStagesByStatus[destination.droppableId]];
+    destItems.splice(destination.index, 0, movedItem);
+
+    newStagesByStatus[source.droppableId] = sourceItems;
+    newStagesByStatus[destination.droppableId] = destItems;
+    setStagesByStatus(newStagesByStatus);
+
+    // API call to update stage status
+    try {
+      await axios.put(`${API}/orders/${orderId}/stages/${stageId}/status?status=${newStatus}`);
+      // Refresh to get updated data
+      fetchOrders();
+    } catch (error) {
+      console.error('Error updating stage status:', error);
+      // Revert on error
+      fetchOrders();
+    }
+  };
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -84,24 +129,10 @@ const Production = () => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'completed':
-        return 'border-l-green-600';
-      case 'in_progress':
-        return 'border-l-[#384E84]';
-      default:
-        return 'border-l-[#DCDCDC]';
-    }
-  };
-
   const columns = [
-    { type: 'project', label: 'Проект', icon: Package, color: '#7A7A79' },
-    { type: 'estimation', label: 'Смета', icon: Clock, color: '#7A7A79' },
-    { type: 'welding', label: 'Сварка', icon: AlertCircle, color: '#E26A2D' },
-    { type: 'painting', label: 'Покраска', icon: AlertCircle, color: '#384E84' },
-    { type: 'woodwork', label: 'Столярка', icon: AlertCircle, color: '#8B4513' },
-    { type: 'upholstery', label: 'Обивка', icon: AlertCircle, color: '#6B7280' },
+    { id: 'not_started', label: 'Не начат', color: '#DCDCDC', bgColor: 'bg-gray-50' },
+    { id: 'in_progress', label: 'В работе', color: '#384E84', bgColor: 'bg-blue-50' },
+    { id: 'completed', label: 'Завершен', color: '#22c55e', bgColor: 'bg-green-50' },
   ];
 
   if (loading) {
@@ -119,138 +150,133 @@ const Production = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-[#212121] mb-1">Производство</h1>
-          <p className="text-[#7A7A79]">Доска производственных этапов</p>
+          <p className="text-[#7A7A79]">Перетаскивайте карточки для изменения статуса</p>
         </div>
         <div className="flex items-center gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#DCDCDC]"></div>
-            <span className="text-[#7A7A79]">Не начат</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#384E84]"></div>
-            <span className="text-[#7A7A79]">В работе</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-600"></div>
-            <span className="text-[#7A7A79]">Завершен</span>
-          </div>
+          {columns.map(col => (
+            <div key={col.id} className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: col.color }}></div>
+              <span className="text-[#7A7A79]">{col.label}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Kanban Board */}
-      <div className="flex gap-4 overflow-x-auto pb-4">
-        {columns.map(column => (
-          <div 
-            key={column.type}
-            className="flex-shrink-0 w-72"
-          >
-            {/* Column Header */}
-            <div className="flex items-center justify-between mb-3 px-2">
-              <div className="flex items-center gap-2">
-                <div 
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: column.color }}
-                ></div>
-                <h3 className="font-semibold text-[#212121]">{column.label}</h3>
-              </div>
-              <Badge className="bg-gray-100 text-[#7A7A79] border-gray-200">
-                {stagesByType[column.type]?.length || 0}
-              </Badge>
-            </div>
-
-            {/* Column Content */}
-            <div className="bg-gray-50 rounded-lg p-2 min-h-[500px] space-y-2">
-              {stagesByType[column.type]?.length === 0 ? (
-                <div className="text-center py-8 text-[#7A7A79] text-sm">
-                  Нет этапов
+      {/* Kanban Board with Drag & Drop */}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="flex gap-4 overflow-x-auto pb-4">
+          {columns.map(column => (
+            <div key={column.id} className="flex-shrink-0 w-80">
+              {/* Column Header */}
+              <div className="flex items-center justify-between mb-3 px-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: column.color }}></div>
+                  <h3 className="font-semibold text-[#212121]">{column.label}</h3>
                 </div>
-              ) : (
-                stagesByType[column.type]?.map((stage, index) => (
-                  <Card 
-                    key={`${stage.orderId}-${stage.id || index}`}
-                    className={`cursor-pointer hover:shadow-md transition-shadow border-l-4 ${getStatusColor(stage.status)}`}
-                    onClick={() => navigate(`/orders/${stage.orderId}`)}
+                <Badge className="bg-gray-100 text-[#7A7A79] border-gray-200">
+                  {stagesByStatus[column.id]?.length || 0}
+                </Badge>
+              </div>
+
+              {/* Droppable Column */}
+              <Droppable droppableId={column.id}>
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={`rounded-lg p-2 min-h-[500px] space-y-2 transition-colors ${
+                      snapshot.isDraggingOver ? 'bg-blue-100 border-2 border-dashed border-[#384E84]' : column.bgColor
+                    }`}
                   >
-                    <CardContent className="p-3">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-[#212121] text-sm truncate">
-                            {stage.orderName}
-                          </h4>
-                          <p className="text-xs text-[#7A7A79] truncate">
-                            {stage.clientName}
-                          </p>
-                        </div>
-                        {getStatusIcon(stage.status)}
+                    {stagesByStatus[column.id]?.length === 0 ? (
+                      <div className="text-center py-8 text-[#7A7A79] text-sm">
+                        {snapshot.isDraggingOver ? 'Отпустите здесь' : 'Нет этапов'}
                       </div>
-                      
-                      {stage.master && (
-                        <div className="flex items-center gap-2 mt-2">
-                          <div className="w-5 h-5 rounded-full bg-[#384E84] text-white text-xs flex items-center justify-center">
-                            {stage.master.charAt(0)}
-                          </div>
-                          <span className="text-xs text-[#7A7A79]">{stage.master}</span>
-                        </div>
-                      )}
+                    ) : (
+                      stagesByStatus[column.id]?.map((stage, index) => (
+                        <Draggable
+                          key={`${stage.orderId}__${stage.id}`}
+                          draggableId={`${stage.orderId}__${stage.id}`}
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            <Card
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              className={`cursor-grab active:cursor-grabbing transition-shadow border-l-4 ${
+                                snapshot.isDragging ? 'shadow-lg rotate-2' : 'hover:shadow-md'
+                              }`}
+                              style={{
+                                ...provided.draggableProps.style,
+                                borderLeftColor: column.color,
+                              }}
+                              onClick={() => !snapshot.isDragging && navigate(`/orders/${stage.orderId}`)}
+                            >
+                              <CardContent className="p-3">
+                                <div className="flex items-start justify-between mb-2">
+                                  <div {...provided.dragHandleProps} className="mr-2 text-[#7A7A79] hover:text-[#384E84]">
+                                    <GripVertical className="w-4 h-4" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-medium text-[#212121] text-sm truncate">
+                                      {stage.orderName}
+                                    </h4>
+                                    <p className="text-xs text-[#7A7A79] truncate">
+                                      {stage.clientName}
+                                    </p>
+                                  </div>
+                                  <Badge className="text-xs ml-2" variant="outline">
+                                    {stageTypeLabels[stage.type]}
+                                  </Badge>
+                                </div>
+                                
+                                {stage.master && (
+                                  <div className="flex items-center gap-2 mt-2">
+                                    <div className="w-5 h-5 rounded-full bg-[#384E84] text-white text-xs flex items-center justify-center">
+                                      {stage.master.charAt(0)}
+                                    </div>
+                                    <span className="text-xs text-[#7A7A79]">{stage.master}</span>
+                                  </div>
+                                )}
 
-                      {stage.total_cost > 0 && (
-                        <div className="mt-2 pt-2 border-t border-gray-100">
-                          <span className="text-xs text-[#7A7A79]">Стоимость: </span>
-                          <span className="text-xs font-medium text-[#212121]">
-                            {new Intl.NumberFormat('ru-RU').format(stage.total_cost)} ₽
-                          </span>
-                        </div>
-                      )}
+                                {stage.total_cost > 0 && (
+                                  <div className="mt-2 pt-2 border-t border-gray-100">
+                                    <span className="text-xs text-[#7A7A79]">Стоимость: </span>
+                                    <span className="text-xs font-medium text-[#212121]">
+                                      {new Intl.NumberFormat('ru-RU').format(stage.total_cost)} ₽
+                                    </span>
+                                  </div>
+                                )}
 
-                      {(stage.start_date || stage.end_date) && (
-                        <div className="mt-2 flex items-center gap-1 text-xs text-[#7A7A79]">
-                          <Clock className="w-3 h-3" />
-                          {stage.start_date && new Date(stage.start_date).toLocaleDateString('ru-RU')}
-                          {stage.end_date && ` — ${new Date(stage.end_date).toLocaleDateString('ru-RU')}`}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))
-              )}
+                                {(stage.start_date || stage.end_date) && (
+                                  <div className="mt-2 flex items-center gap-1 text-xs text-[#7A7A79]">
+                                    <Clock className="w-3 h-3" />
+                                    {stage.start_date && new Date(stage.start_date).toLocaleDateString('ru-RU')}
+                                    {stage.end_date && ` — ${new Date(stage.end_date).toLocaleDateString('ru-RU')}`}
+                                  </div>
+                                )}
+                              </CardContent>
+                            </Card>
+                          )}
+                        </Draggable>
+                      ))
+                    )}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </DragDropContext>
 
-      {/* Summary */}
-      <div className="mt-6 grid grid-cols-4 gap-4">
-        <Card className="border-[#DCDCDC]">
-          <CardContent className="p-4">
-            <div className="text-xs text-[#7A7A79] uppercase mb-1">Всего заказов</div>
-            <div className="text-2xl font-bold text-[#212121]">{orders.length}</div>
-          </CardContent>
-        </Card>
-        <Card className="border-[#DCDCDC]">
-          <CardContent className="p-4">
-            <div className="text-xs text-[#7A7A79] uppercase mb-1">Активных этапов</div>
-            <div className="text-2xl font-bold text-[#384E84]">
-              {Object.values(stagesByType).flat().filter(s => s.status === 'in_progress').length}
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-[#DCDCDC]">
-          <CardContent className="p-4">
-            <div className="text-xs text-[#7A7A79] uppercase mb-1">Ожидают запуска</div>
-            <div className="text-2xl font-bold text-[#E26A2D]">
-              {Object.values(stagesByType).flat().filter(s => s.status === 'not_started').length}
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-[#DCDCDC]">
-          <CardContent className="p-4">
-            <div className="text-xs text-[#7A7A79] uppercase mb-1">Завершено</div>
-            <div className="text-2xl font-bold text-green-600">
-              {Object.values(stagesByType).flat().filter(s => s.status === 'completed').length}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {orders.length === 0 && (
+        <div className="text-center py-12">
+          <Package className="w-16 h-16 mx-auto text-[#DCDCDC] mb-4" />
+          <h3 className="text-lg font-medium text-[#212121] mb-2">Нет активных заказов</h3>
+          <p className="text-[#7A7A79]">Создайте заказ и добавьте производственные этапы</p>
+        </div>
+      )}
     </div>
   );
 };
