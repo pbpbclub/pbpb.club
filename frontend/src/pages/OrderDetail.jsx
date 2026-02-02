@@ -161,6 +161,71 @@ const OrderDetail = () => {
     c.name.toLowerCase().includes(clientSearch.toLowerCase())
   );
 
+  // Fetch files for order
+  const fetchFiles = async () => {
+    try {
+      const response = await axios.get(`${API}/orders/${orderId}/files`);
+      setFiles(response.data);
+    } catch (error) {
+      console.error('Error fetching files:', error);
+    }
+  };
+
+  // Fetch events for order
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get(`${API}/orders/${orderId}/events`);
+      setEvents(response.data);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    }
+  };
+
+  // Handle file upload
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setUploadingFile(true);
+    try {
+      // Determine file type
+      let fileType = 'other';
+      if (file.type.includes('image')) fileType = 'image';
+      else if (file.type.includes('pdf')) fileType = 'document';
+      else if (file.name.includes('счет') || file.name.includes('invoice')) fileType = 'invoice';
+      else if (file.name.includes('договор') || file.name.includes('contract')) fileType = 'contract';
+      
+      // Create file record (in real app, would upload to storage first)
+      const fileData = {
+        name: file.name,
+        file_type: fileType,
+        size: file.size,
+        mime_type: file.type,
+        url: URL.createObjectURL(file), // Temporary URL for demo
+        uploaded_by: 'Пользователь',
+      };
+      
+      await axios.post(`${API}/orders/${orderId}/files`, fileData);
+      fetchFiles();
+      fetchEvents();
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  // Delete file
+  const handleDeleteFile = async (fileId) => {
+    if (!window.confirm('Удалить файл?')) return;
+    try {
+      await axios.delete(`${API}/orders/${orderId}/files/${fileId}`);
+      fetchFiles();
+    } catch (error) {
+      console.error('Error deleting file:', error);
+    }
+  };
+
   // Enter edit mode
   const enterEditMode = () => {
     setEditedOrder({
