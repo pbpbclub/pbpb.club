@@ -188,44 +188,44 @@ const Clients = () => {
         </Dialog>
       </div>
 
-      <Card className="mb-6 border-gray-300 shadow-sm">
+      <Card className="mb-6 border-[#DCDCDC] shadow-sm">
         <div className="p-4 flex items-center gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-900" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#7A7A79]" />
             <Input
               data-testid="search-clients-input"
               placeholder="Поиск по названию, ИНН или контактному лицу..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              className="pl-10"
+              className="pl-10 border-[#DCDCDC]"
             />
           </div>
-          <Button onClick={handleSearch}>Найти</Button>
+          <Button onClick={handleSearch} className="bg-[#384E84] hover:bg-[#2d3e6a]">Найти</Button>
         </div>
       </Card>
 
-      <Card className="border-gray-300 shadow-sm">
+      <Card className="border-[#DCDCDC] shadow-sm">
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#384E84]"></div>
           </div>
         ) : (
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="font-semibold w-12"></TableHead>
-                <TableHead className="font-semibold">Название</TableHead>
-                <TableHead className="font-semibold">ИНН</TableHead>
-                <TableHead className="font-semibold">Контактное лицо</TableHead>
-                <TableHead className="font-semibold">Телефон</TableHead>
-                <TableHead className="font-semibold">Email</TableHead>
+              <TableRow className="border-b border-[#DCDCDC]">
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Название</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">ИНН</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Контактное лицо</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Телефон</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs">Email</TableHead>
+                <TableHead className="font-semibold text-[#7A7A79] uppercase text-xs text-right w-24"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {clients.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-12 text-gray-900">
+                  <TableCell colSpan={6} className="text-center py-12 text-[#7A7A79]">
                     Заказчиков не найдено
                   </TableCell>
                 </TableRow>
@@ -234,26 +234,42 @@ const Clients = () => {
                   <TableRow
                     key={client.id}
                     data-testid={`client-row-${client.id}`}
-                    className="cursor-pointer"
+                    className="cursor-pointer border-b border-[#DCDCDC]"
+                    onClick={() => navigate(`/clients/${client.id}`)}
                   >
-                    <TableCell className="w-12">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteClient(client.id);
-                        }}
-                        data-testid={`delete-client-${client.id}`}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
+                    <TableCell className="font-medium text-[#212121]">{client.name}</TableCell>
+                    <TableCell className="text-[#7A7A79]">{client.inn || '—'}</TableCell>
+                    <TableCell className="text-[#212121]">{client.contact_person || '—'}</TableCell>
+                    <TableCell className="text-[#7A7A79]">{client.phone || '—'}</TableCell>
+                    <TableCell className="text-[#7A7A79]">{client.email || '—'}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/clients/${client.id}`);
+                          }}
+                          className="h-8 w-8 p-0 text-[#7A7A79] hover:text-[#384E84]"
+                          data-testid={`edit-client-${client.id}`}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteClient(client.id);
+                          }}
+                          className="h-8 w-8 p-0 text-[#7A7A79] hover:text-red-500"
+                          data-testid={`delete-client-${client.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </TableCell>
-                    <TableCell className="font-medium" onClick={() => navigate(`/clients/${client.id}`)}>{client.name}</TableCell>
-                    <TableCell onClick={() => navigate(`/clients/${client.id}`)}>{client.inn || '—'}</TableCell>
-                    <TableCell onClick={() => navigate(`/clients/${client.id}`)}>{client.contact_person || '—'}</TableCell>
-                    <TableCell onClick={() => navigate(`/clients/${client.id}`)}>{client.phone || '—'}</TableCell>
-                    <TableCell onClick={() => navigate(`/clients/${client.id}`)}>{client.email || '—'}</TableCell>
                   </TableRow>
                 ))
               )}
