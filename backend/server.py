@@ -113,20 +113,38 @@ class ClientUpdate(BaseModel):
     notes: Optional[str] = None
 
 # Models
+class MaterialSource(str, Enum):
+    warehouse = "warehouse"  # Из склада
+    purchase = "purchase"    # Под заказ
+
 class Material(BaseModel):
     id: str = Field(default_factory=lambda: f"mat_{int(datetime.now().timestamp()*1000)}")
     name: str
     type: MaterialType
+    article: Optional[str] = None  # Артикул
     price: float
     unit: str  # шт, м, кг, м2
+    source: MaterialSource = MaterialSource.warehouse  # Источник
+    quantity_available: float = 0  # Доступно на складе
+    quantity_required: float = 0   # Требуется
+    location: Optional[str] = None  # Локация на складе
+    supplier: Optional[str] = None  # Поставщик
+    supplier_contact: Optional[str] = None  # Контакт поставщика
     notes: Optional[str] = None
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class MaterialCreate(BaseModel):
     name: str
     type: MaterialType
+    article: Optional[str] = None
     price: float
     unit: str
+    source: MaterialSource = MaterialSource.warehouse
+    quantity_available: float = 0
+    quantity_required: float = 0
+    location: Optional[str] = None
+    supplier: Optional[str] = None
+    supplier_contact: Optional[str] = None
     notes: Optional[str] = None
 
 class CostItem(BaseModel):
