@@ -459,7 +459,7 @@ const OrderDetail = () => {
           <CardContent className="p-4">
             <div className="text-xs text-[#7A7A79] uppercase mb-1">Смета</div>
             <div className="text-2xl font-bold text-[#212121]">{formatCurrency(order.cash_price)}</div>
-            <div className="text-xs text-[#7A7A79] mt-1">Цена для клиента</div>
+            <div className="text-xs text-[#7A7A79] mt-1">Цена для заказчика</div>
           </CardContent>
         </Card>
         <Card className="border-[#DCDCDC]">
