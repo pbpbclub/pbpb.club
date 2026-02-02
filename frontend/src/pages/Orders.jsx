@@ -321,14 +321,53 @@ const Orders = () => {
                 data-testid="edit-order-name-input"
               />
             </div>
-            <div>
+            <div className="relative">
               <Label className="text-[#212121]">Заказчик</Label>
               <Input
-                value={formData.client}
-                onChange={(e) => setFormData({ ...formData, client: e.target.value })}
+                value={clientSearch}
+                onChange={(e) => {
+                  setClientSearch(e.target.value);
+                  setFormData({ ...formData, client: e.target.value });
+                  setShowClientDropdown(true);
+                }}
+                onFocus={() => setShowClientDropdown(true)}
+                placeholder="Поиск заказчика..."
                 className="border-[#DCDCDC]"
                 data-testid="edit-order-client-input"
               />
+              {showClientDropdown && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-[#DCDCDC] rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  {filteredClients.length > 0 ? (
+                    filteredClients.map(client => (
+                      <div
+                        key={client.id}
+                        className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          setFormData({ ...formData, client: client.name });
+                          setClientSearch(client.name);
+                          setShowClientDropdown(false);
+                        }}
+                      >
+                        <div className="font-medium text-[#212121]">{client.name}</div>
+                        {client.phone && <div className="text-xs text-[#7A7A79]">{client.phone}</div>}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-[#7A7A79] text-sm">Не найдено</div>
+                  )}
+                  <div
+                    className="px-3 py-2 border-t border-[#DCDCDC] hover:bg-blue-50 cursor-pointer flex items-center gap-2 text-[#384E84]"
+                    onClick={() => {
+                      setOpenNewClientDialog(true);
+                      setShowClientDropdown(false);
+                      setNewClient({ ...newClient, name: clientSearch });
+                    }}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Создать нового заказчика</span>
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <Label className="text-[#212121]">Статус</Label>
@@ -367,6 +406,52 @@ const Orders = () => {
               data-testid="save-order-btn"
             >
               Сохранить
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Client Dialog */}
+      <Dialog open={openNewClientDialog} onOpenChange={setOpenNewClientDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-[#212121]">Новый заказчик</DialogTitle>
+            <DialogDescription>Создайте нового заказчика</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label className="text-[#212121]">Название / ФИО *</Label>
+              <Input
+                value={newClient.name}
+                onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
+                className="border-[#DCDCDC]"
+                placeholder="ООО Компания или Иванов И.И."
+              />
+            </div>
+            <div>
+              <Label className="text-[#212121]">Телефон</Label>
+              <Input
+                value={newClient.phone}
+                onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
+                className="border-[#DCDCDC]"
+                placeholder="+7 (999) 123-45-67"
+              />
+            </div>
+            <div>
+              <Label className="text-[#212121]">Email</Label>
+              <Input
+                value={newClient.email}
+                onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
+                className="border-[#DCDCDC]"
+                placeholder="email@example.com"
+              />
+            </div>
+            <Button 
+              onClick={createNewClient} 
+              className="w-full bg-[#384E84] hover:bg-[#2d3e6a]"
+              disabled={!newClient.name.trim()}
+            >
+              Создать заказчика
             </Button>
           </div>
         </DialogContent>
