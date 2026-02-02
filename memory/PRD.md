@@ -78,14 +78,34 @@
 - Кнопка "Отмена" отменяет изменения и выходит из режима редактирования
 - Backend автоматически пересчитывает стоимости при обновлении этапов
 
+### Phase 4 - Files, Events & Kanban (Completed ✅) - December 2025
+**Files API:**
+- GET /api/orders/{order_id}/files - список файлов заказа
+- POST /api/orders/{order_id}/files - загрузка метаданных файла
+- DELETE /api/orders/{order_id}/files/{file_id} - удаление файла
+- Хранение в MongoDB коллекции order_files
+- Автоматическое логирование события при загрузке
+
+**Events API:**
+- GET /api/orders/{order_id}/events - история событий заказа
+- POST /api/orders/{order_id}/events - создание события
+- Автоматическое логирование при изменении статуса этапа
+- Хранение в MongoDB коллекции order_events
+
+**Kanban Board (Производство):**
+- 3 колонки: Не начат, В работе, Завершен
+- Drag-and-drop с библиотекой @hello-pangea/dnd
+- PUT /api/orders/{order_id}/stages/{stage_id}/status - обновление статуса
+- Автоматическое логирование изменения статуса
+
 ---
 
 ## Prioritized Backlog
 
 ### P0 - Critical (Next)
-- [ ] Backend API для файлов (загрузка/скачивание) - вкладка "Файлы"
-- [ ] Backend API для событий заказа - вкладка "События"
-- [ ] Drag-and-drop на Kanban-доске "Производство"
+- [x] ~~Backend API для файлов (загрузка/скачивание)~~ ✅
+- [x] ~~Backend API для событий заказа~~ ✅
+- [x] ~~Drag-and-drop на Kanban-доске~~ ✅
 
 ### P1 - High Priority
 - [ ] Drag-and-drop перепланирование в календаре
