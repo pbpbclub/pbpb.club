@@ -211,6 +211,7 @@ class OrderUpdate(BaseModel):
     planned_completion_date: Optional[str] = None
     actual_completion_date: Optional[str] = None
     notes: Optional[str] = None
+    stages: Optional[List[Dict[str, Any]]] = None
 
 # File model for order attachments
 class FileType(str, Enum):
