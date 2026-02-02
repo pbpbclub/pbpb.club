@@ -131,6 +131,7 @@ const Orders = () => {
       planned_completion_date: order.planned_completion_date || '',
       notes: order.notes || '',
     });
+    setClientSearch(order.client || '');
     setEditDialog(true);
   };
 
@@ -138,6 +139,7 @@ const Orders = () => {
     try {
       await axios.put(`${API}/orders/${editingOrder.id}`, formData);
       setEditDialog(false);
+      setShowClientDropdown(false);
       fetchOrders();
     } catch (error) {
       console.error('Error saving order:', error);
