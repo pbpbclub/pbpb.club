@@ -408,36 +408,39 @@ const OrderDetail = () => {
 
       {/* Add Stage Dialog */}
       <Dialog open={openStageDialog} onOpenChange={setOpenStageDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-[#212121]">Новый этап</DialogTitle>
             <DialogDescription>
-              Добавьте этап производства для этого заказа
+              Добавьте этап производства с расчётом стоимости работ
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div>
-              <Label className="text-[#212121]">Тип этапа</Label>
-              <Select value={newStage.type} onValueChange={(value) => setNewStage({ ...newStage, type: value })}>
-                <SelectTrigger className="border-[#DCDCDC]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(stageTypeLabels).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-[#212121]">Тип этапа</Label>
+                <Select value={newStage.type} onValueChange={(value) => setNewStage({ ...newStage, type: value })}>
+                  <SelectTrigger className="border-[#DCDCDC]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(stageTypeLabels).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-[#212121]">Мастер</Label>
+                <Input
+                  value={newStage.master}
+                  onChange={(e) => setNewStage({ ...newStage, master: e.target.value })}
+                  placeholder="Имя мастера"
+                  className="border-[#DCDCDC]"
+                />
+              </div>
             </div>
-            <div>
-              <Label className="text-[#212121]">Мастер</Label>
-              <Input
-                value={newStage.master}
-                onChange={(e) => setNewStage({ ...newStage, master: e.target.value })}
-                placeholder="Имя мастера"
-                className="border-[#DCDCDC]"
-              />
-            </div>
+            
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-[#212121]">Дата начала</Label>
@@ -458,12 +461,59 @@ const OrderDetail = () => {
                 />
               </div>
             </div>
+
+            {/* Work cost section */}
+            <div className="border-t border-[#DCDCDC] pt-4 mt-4">
+              <h4 className="font-medium text-[#212121] mb-3">Стоимость работ (опционально)</h4>
+              <div>
+                <Label className="text-[#212121]">Название работы</Label>
+                <Input
+                  value={newStage.work_name}
+                  onChange={(e) => setNewStage({ ...newStage, work_name: e.target.value })}
+                  placeholder="Например: Сварочные работы"
+                  className="border-[#DCDCDC]"
+                  data-testid="stage-work-name-input"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-3">
+                <div>
+                  <Label className="text-[#212121]">Часы</Label>
+                  <Input
+                    type="number"
+                    step="0.5"
+                    value={newStage.work_hours}
+                    onChange={(e) => setNewStage({ ...newStage, work_hours: parseFloat(e.target.value) || 0 })}
+                    className="border-[#DCDCDC]"
+                    data-testid="stage-work-hours-input"
+                  />
+                </div>
+                <div>
+                  <Label className="text-[#212121]">Ставка (₽/ч)</Label>
+                  <Input
+                    type="number"
+                    value={newStage.work_rate}
+                    onChange={(e) => setNewStage({ ...newStage, work_rate: parseFloat(e.target.value) || 0 })}
+                    className="border-[#DCDCDC]"
+                    data-testid="stage-work-rate-input"
+                  />
+                </div>
+              </div>
+              {newStage.work_hours > 0 && newStage.work_rate > 0 && (
+                <div className="bg-gray-50 rounded p-3 mt-3 flex justify-between items-center">
+                  <span className="text-[#7A7A79]">Стоимость работ:</span>
+                  <span className="text-xl font-bold text-[#212121]">
+                    {formatCurrency(newStage.work_hours * newStage.work_rate)}
+                  </span>
+                </div>
+              )}
+            </div>
+
             <Button 
               onClick={addStage} 
               className="w-full bg-[#384E84] hover:bg-[#2d3e6a]"
               data-testid="submit-stage-btn"
             >
-              Добавить
+              Добавить этап
             </Button>
           </div>
         </DialogContent>
