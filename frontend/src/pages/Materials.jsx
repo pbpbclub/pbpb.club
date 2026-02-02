@@ -231,15 +231,37 @@ const Materials = () => {
       ) : (
         <div className="space-y-6">
           {/* Warehouse Section */}
-          {(activeTab === 'all' || activeTab === 'warehouse') && warehouseMaterials.length > 0 && (
+          {(activeTab === 'all' || activeTab === 'warehouse') && (
             <Card className="border-[#DCDCDC]">
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg text-[#212121]">
-                  <Package className="w-5 h-5 text-[#384E84]" />
-                  Из склада (В наличии)
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-lg text-[#212121]">
+                    <Package className="w-5 h-5 text-[#384E84]" />
+                    Из склада (В наличии)
+                    <span className="text-sm font-normal text-[#7A7A79]">({warehouseMaterials.length})</span>
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-4 h-4 text-[#7A7A79]" />
+                    <select
+                      value={warehouseTypeFilter}
+                      onChange={(e) => setWarehouseTypeFilter(e.target.value)}
+                      className="h-8 rounded border border-[#DCDCDC] bg-white px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#384E84] focus:ring-opacity-20 focus:border-[#384E84]"
+                      data-testid="warehouse-type-filter"
+                    >
+                      <option value="all">Все типы</option>
+                      {Object.entries(materialTypeLabels).map(([key, label]) => (
+                        <option key={key} value={key}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="p-0">
+                {warehouseMaterials.length === 0 ? (
+                  <div className="p-8 text-center text-[#7A7A79]">
+                    Материалов не найдено
+                  </div>
+                ) : (
                 <table className="w-full">
                   <thead className="bg-gray-50 border-y border-[#DCDCDC]">
                     <tr>
@@ -248,7 +270,7 @@ const Materials = () => {
                       <th className="px-4 py-3 text-right text-xs font-medium text-[#7A7A79] uppercase">Кол-во (Треб.)</th>
                       <th className="px-4 py-3 text-right text-xs font-medium text-[#7A7A79] uppercase">Доступно</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-[#7A7A79] uppercase">Локация</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-[#7A7A79] uppercase">Действие</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-[#7A7A79] uppercase w-24"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -276,8 +298,8 @@ const Materials = () => {
                         <td className="px-4 py-3 text-sm text-[#7A7A79]">
                           {material.location || '—'}
                         </td>
-                        <td className="px-4 py-3 text-center">
-                          <div className="flex items-center justify-center gap-2">
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-1">
                             <Button
                               size="sm"
                               variant="ghost"
