@@ -156,11 +156,17 @@ const OrderDetail = () => {
   // Save all changes
   const saveAllChanges = async () => {
     try {
-      // Save order details
-      await axios.put(`${API}/orders/${orderId}`, editedOrder);
+      // Prepare update data including stages
+      const updateData = {
+        name: editedOrder.name,
+        client: editedOrder.client,
+        status: editedOrder.status,
+        planned_completion_date: editedOrder.planned_completion_date,
+        notes: editedOrder.notes,
+        stages: editedStages,
+      };
       
-      // Update stages - for now just update the whole order
-      // In production, you'd update each stage individually
+      await axios.put(`${API}/orders/${orderId}`, updateData);
       
       setIsEditMode(false);
       fetchOrder();
