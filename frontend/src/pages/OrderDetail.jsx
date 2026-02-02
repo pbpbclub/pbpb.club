@@ -1232,6 +1232,52 @@ const OrderDetail = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* New Client Dialog */}
+      <Dialog open={openNewClientDialog} onOpenChange={setOpenNewClientDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-[#212121]">Новый заказчик</DialogTitle>
+            <DialogDescription>Создайте нового заказчика</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label className="text-[#212121]">Название / ФИО *</Label>
+              <Input
+                value={newClient.name}
+                onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
+                className="border-[#DCDCDC]"
+                placeholder="ООО Компания или Иванов И.И."
+              />
+            </div>
+            <div>
+              <Label className="text-[#212121]">Телефон</Label>
+              <Input
+                value={newClient.phone}
+                onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
+                className="border-[#DCDCDC]"
+                placeholder="+7 (999) 123-45-67"
+              />
+            </div>
+            <div>
+              <Label className="text-[#212121]">Email</Label>
+              <Input
+                value={newClient.email}
+                onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
+                className="border-[#DCDCDC]"
+                placeholder="email@example.com"
+              />
+            </div>
+            <Button 
+              onClick={createNewClient} 
+              className="w-full bg-[#384E84] hover:bg-[#2d3e6a]"
+              disabled={!newClient.name.trim()}
+            >
+              Создать заказчика
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
