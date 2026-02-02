@@ -171,9 +171,8 @@
 
 ## Known Issues
 - Web scraping для цен на металл не работает (заблокировано сайтом)
-- Вкладки "Файлы" и "События" на странице заказа используют мок-данные (не сохраняются в БД)
 
 ## Test Reports
-- `/app/test_reports/iteration_3.json` - последний отчёт тестирования inline-редактирования
-- Backend: 100% (8/8 tests passed)
-- Frontend: 100% (all inline editing features working)
+- `/app/test_reports/iteration_4.json` - последний отчёт (Files, Events, Kanban)
+- Backend: 100% (24/24 tests passed)
+- Frontend: 100% (all features working)
