@@ -67,10 +67,45 @@ const Orders = () => {
     planned_completion_date: '',
     notes: '',
   });
+  
+  // Clients for dropdown
+  const [clients, setClients] = useState([]);
+  const [clientSearch, setClientSearch] = useState('');
+  const [showClientDropdown, setShowClientDropdown] = useState(false);
+  const [openNewClientDialog, setOpenNewClientDialog] = useState(false);
+  const [newClient, setNewClient] = useState({ name: '', phone: '', email: '' });
 
   useEffect(() => {
     fetchOrders();
+    fetchClients();
   }, [statusFilter]);
+
+  const fetchClients = async () => {
+    try {
+      const response = await axios.get(`${API}/clients`);
+      setClients(response.data);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+    }
+  };
+
+  const createNewClient = async () => {
+    if (!newClient.name.trim()) return;
+    try {
+      const response = await axios.post(`${API}/clients`, newClient);
+      setClients([response.data, ...clients]);
+      setFormData({ ...formData, client: response.data.name });
+      setClientSearch(response.data.name);
+      setOpenNewClientDialog(false);
+      setNewClient({ name: '', phone: '', email: '' });
+    } catch (error) {
+      console.error('Error creating client:', error);
+    }
+  };
+
+  const filteredClients = clients.filter(c => 
+    c.name.toLowerCase().includes(clientSearch.toLowerCase())
+  );
 
   const fetchOrders = async () => {
     try {
